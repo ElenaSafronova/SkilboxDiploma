@@ -4,7 +4,6 @@ package ru.skillbox.diploma.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -12,8 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +29,7 @@ public class User {
 
     @Column(name = "reg_time", updatable = false)
     @NotNull(message = "regTime (time of registration) cannot be null")
-    private LocalDateTime regTime;
+    private ZonedDateTime regTime;
 
 //    @Column(unique = true)
     @NotBlank(message = "username cannot be null or whitespace")
@@ -50,16 +48,16 @@ public class User {
     @Column(columnDefinition="Text")
     private String photo;
 
-    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
-    private List<Post> moderatedPostList = new ArrayList<>();
+//    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
+//    private List<Post> moderatedPostList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private List<Post> postList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<PostComment> postCommentsList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Vote> postVotesList = new ArrayList<>();
+//    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+//    private List<Post> postList = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<PostComment> postCommentsList = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<Vote> postVotesList = new ArrayList<>();
 
 }

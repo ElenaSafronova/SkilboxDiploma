@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import ru.skillbox.diploma.value.PostStatus;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +44,13 @@ public class Post {
             referencedColumnName="id"
     )
     @NotNull(message = "userId cannot be null")
-    private User author;
+    private User user;
 
     @Column(updatable = false)
     @NotNull(message = "post creating time cannot be null")
-    private LocalDateTime time;
+    private ZonedDateTime time;
 
-    @Column(length = 255)
+    @Column()
     @NotNull(message = "title cannot be null")
     private String title;
 
@@ -63,11 +63,11 @@ public class Post {
     private int viewCount;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<PostComment> postCommentsList = new ArrayList<>();
-
+    private List<PostComment> postComments = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+//    private List<Tag2Post> tagsList = new ArrayList<>();
+//
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Tag2Post> tagsList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Vote> votesList = new ArrayList<>();
+    private List<Vote> votes = new ArrayList<>();
 }

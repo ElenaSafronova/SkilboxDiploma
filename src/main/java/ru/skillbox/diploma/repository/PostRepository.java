@@ -1,19 +1,24 @@
 package ru.skillbox.diploma.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.value.PostStatus;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface PostRepository extends CrudRepository<Post, Integer> {
-    @Query(value = "SELECT p FROM posts p WHERE p.is_active = 1",
-            countQuery = "SELECT count(*) FROM posts WHERE p.is_active = 1",
-            nativeQuery = true)
-    List<Post> findActive();
+public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
+    List<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive, PostStatus status, ZonedDateTime time, Pageable pageable);
+
+    @Query("SELECT p " +
+            "FROM Post p " +
+            "WHERE p.isActive = 1 AND p.status='ACCEPTED'")
+    List<Post> findActiveAndAcceptedPosts();
 
     @Query(
             value = "SELECT p.id," +
