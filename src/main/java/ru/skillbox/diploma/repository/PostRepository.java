@@ -1,5 +1,6 @@
 package ru.skillbox.diploma.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -13,7 +14,19 @@ import java.util.Map;
 
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
-    List<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive, PostStatus status, ZonedDateTime time, Pageable pageable);
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
+                                                              PostStatus status,
+                                                              ZonedDateTime time,
+                                                              Pageable pageable
+                                                              );
+
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualAndTextContaining(
+                                                              byte isActive,
+                                                              PostStatus status,
+                                                              ZonedDateTime time,
+                                                              String text,
+                                                              Pageable pageable
+    );
 
     @Query("SELECT p " +
             "FROM Post p " +

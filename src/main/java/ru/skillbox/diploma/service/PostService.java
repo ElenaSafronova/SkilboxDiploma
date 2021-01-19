@@ -3,6 +3,7 @@ package ru.skillbox.diploma.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -10,11 +11,13 @@ import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.repository.PostRepository;
+import ru.skillbox.diploma.responce.AllPostResponse;
 import ru.skillbox.diploma.responce.PostResponse;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,40 +46,76 @@ public class PostService {
         return (List<Post>) postRepository.findAll();
     }
 
-    public List<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive, PostStatus status, ZonedDateTime time, Pageable pageable){
-        return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqual(isActive, status, time, pageable);
+    public Page<Post> findAllActivePosts(byte isActive,
+                                         PostStatus status,
+                                         ZonedDateTime time,
+                                         Pageable pageable)
+    {
+        return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqual(
+                isActive, status, time, pageable);
     }
 
-    public List<PostResponse> findActiveAndAcceptedPosts(int offset, int limit, String mode) {
-        Pageable pagingAndSorting = null;
+    public AllPostResponse searchPosts(byte isActive,
+                                       PostStatus status,
+                                       ZonedDateTime time,
+                                       String text,
+                                       Pageable pageable
+    ){
+        Page<Post> postList =  postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqualAndTextContaining(
+                isActive, status, time, text, pageable);
+
+        List<PostResponse> postResponseList = new ArrayList<>();
+        postList.forEach(post ->  postResponseList.add(new PostResponse(post)));
+
+        return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
+    }
+
+
+    public AllPostResponse getActiveAndAcceptedPosts(int offset, int limit, String mode) {
+
         logger.trace("Request /api/post?offset=" + offset +
                 "&limit="+ limit  + "&mode=" + mode);
 
+        Pageable pagingAndSorting = definePagingAndSortingType(mode, offset, limit);
+
+        Page<Post> postList = findAllActivePosts(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now(),
+                pagingAndSorting);
+
+        List<PostResponse> postResponseList = new ArrayList<>();
+        postList.forEach(post ->  postResponseList.add(new PostResponse(post)));
+
+        switch (mode) {
+            case POPULAR:
+                logger.trace("posts sorted by getPostComments().size()");
+                postResponseList.stream().sorted(Comparator.comparingInt(p -> p.getCommentCount()));
+                break;
+            case BEST:
+                logger.trace("posts sorted by getVotes().size() where value = 1");
+                postResponseList.stream().sorted(Comparator.comparing(p -> p.getLikeCount()));
+                break;
+        }
+
+        return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
+    }
+
+    private Pageable definePagingAndSortingType(String mode, int offset, int limit) {
+        Pageable pagingAndSorting;
         switch (mode) {
             case RECENT:
                 logger.trace("posts Sort.by(\"time\").descending()");
                 pagingAndSorting = PageRequest.of(offset, limit, Sort.by("time").descending());
                 break;
-            case POPULAR:
-                logger.trace("CALL PostRepository method findPopular()");
-                break;
-            case BEST:
-                logger.trace("CALL PostRepository method findBest()");
-                break;
             case EARLY:
                 logger.trace("posts Sort.by(\"time\")");
                 pagingAndSorting = PageRequest.of(offset, limit, Sort.by("time"));
                 break;
+            default:
+                logger.trace("CALL PostRepository default method");
+                pagingAndSorting = PageRequest.of(offset, limit);
         }
-
-        List<Post> postList = postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqual(
-                (byte) 1,
-                PostStatus.ACCEPTED,
-                ZonedDateTime.now(),
-                pagingAndSorting);
-        List<PostResponse> postResponseList = new ArrayList<>();
-        postList.forEach(post ->  postResponseList.add(new PostResponse(post)));
-
-        return postResponseList;
+        return pagingAndSorting;
     }
 }
