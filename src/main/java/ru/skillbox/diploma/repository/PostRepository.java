@@ -28,6 +28,25 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                               Pageable pageable
     );
 
+    Page<Post> findAllByIsActiveAndStatusAndTimeBetween(byte isActive,
+                                                      PostStatus status,
+                                                      ZonedDateTime publicationTimeStart,
+                                                      ZonedDateTime publicationTimeEnd,
+                                                      Pageable pageable
+    );
+
+
+
+
+
+
+    @Query( "FROM Post p " +
+            "WHERE p.isActive = 1 AND p.status='ACCEPTED' " +
+            "AND p.time >= ?1 AND p.time <= ?2")
+    Page<Post> findPostsByDate(ZonedDateTime dateStart,
+                               ZonedDateTime dateFinish,
+                               Pageable pageable);
+
     @Query("SELECT p " +
             "FROM Post p " +
             "WHERE p.isActive = 1 AND p.status='ACCEPTED'")

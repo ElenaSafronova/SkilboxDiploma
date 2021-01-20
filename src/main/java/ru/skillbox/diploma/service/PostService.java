@@ -101,6 +101,23 @@ public class PostService {
         return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
     }
 
+    public AllPostResponse getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){
+        Page<Post> postPage = postRepository.findAllByIsActiveAndStatusAndTimeBetween(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                dateStart, dateFinish,
+                PageRequest.of(offset, limit));
+
+//        Page<Post> postPage = postRepository.findPostsByDate(dateStart, dateFinish, PageRequest.of(offset, limit));
+
+        List<PostResponse> postResponseList = new ArrayList<>();
+        if (postPage.getSize() < 1){
+            return new AllPostResponse(0, postResponseList);
+        }
+        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
+        return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
+    }
+
     private Pageable definePagingAndSortingType(String mode, int offset, int limit) {
         Pageable pagingAndSorting;
         switch (mode) {
