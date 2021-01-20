@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.model.Tag2Post;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.responce.AllPostResponse;
 import ru.skillbox.diploma.responce.PostResponse;
@@ -111,9 +112,6 @@ public class PostService {
 //        Page<Post> postPage = postRepository.findPostsByDate(dateStart, dateFinish, PageRequest.of(offset, limit));
 
         List<PostResponse> postResponseList = new ArrayList<>();
-        if (postPage.getSize() < 1){
-            return new AllPostResponse(0, postResponseList);
-        }
         postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
         return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
     }
@@ -134,5 +132,22 @@ public class PostService {
                 pagingAndSorting = PageRequest.of(offset, limit);
         }
         return pagingAndSorting;
+    }
+
+    public AllPostResponse findPostsByTag(int offset, int limit, String tag) {
+//        Post curPost = postRepository.findById(2).get();
+//        System.out.println(curPost.getTags());
+
+        Page<Post> postPage = postRepository
+                .findAllByIsActiveAndStatusAndTimeLessThanEqualAndTags_NameContaining(
+                    (byte) 1,
+                    PostStatus.ACCEPTED,
+                    ZonedDateTime.now(),
+                    tag,
+                    PageRequest.of(offset, limit));
+
+        List<PostResponse> postResponseList = new ArrayList<>();
+        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
+        return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
     }
 }

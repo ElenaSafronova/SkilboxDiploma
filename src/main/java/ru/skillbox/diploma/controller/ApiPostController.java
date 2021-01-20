@@ -63,4 +63,13 @@ public class ApiPostController {
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/api/post/byTag")
+    public ResponseEntity<AllPostResponse> getPostsByTag(@RequestParam int offset,
+                                                       @RequestParam int limit,
+                                                       @RequestParam String tag){
+        logger.trace("/api/post/byTag?tag=" + tag);
+        AllPostResponse postResponse = postService.findPostsByTag(offset, limit, tag);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
 }

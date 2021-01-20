@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -64,10 +65,17 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostComment> postComments = new ArrayList<>();
-//
+
 //    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-//    private List<Tag2Post> tagsList = new ArrayList<>();
-//
+//    private List<Tag2Post> tags = new ArrayList<>();
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable (name = "tag2post",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags;
 }
+

@@ -36,6 +36,14 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
     );
 
 
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualAndTags_NameContaining(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            String tag,
+            Pageable pageable
+    );
+
 
 
 
