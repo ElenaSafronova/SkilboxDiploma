@@ -10,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Post;
-import ru.skillbox.diploma.model.Tag2Post;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.responce.AllPostResponse;
 import ru.skillbox.diploma.responce.PostResponse;
@@ -52,6 +51,7 @@ public class PostService {
                                          ZonedDateTime time,
                                          Pageable pageable)
     {
+        //        сохранить количество постов в классе GeneralResponse и сам общий лист постов
         return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqual(
                 isActive, status, time, pageable);
     }

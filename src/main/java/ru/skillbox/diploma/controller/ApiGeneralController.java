@@ -4,11 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.skillbox.diploma.model.GlobalSetting;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.TagRepository;
+import ru.skillbox.diploma.responce.AllTagsResponce;
+import ru.skillbox.diploma.responce.TagResponse;
+import ru.skillbox.diploma.service.PostService;
+import ru.skillbox.diploma.service.TagService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,26 +28,29 @@ public class ApiGeneralController {
     private GlobalSettingRepository globalSettingRepository;
 
     @Autowired
-    private TagRepository tagRepository;
+    private TagService tagService;
 
-    String title = "DevPub";
-    String subtitle = "Рассказы разработчиков";
-    String phone = "+7 903 666-44-55";
-    String email = "mail@mail.ru";
-    String copyright = "Дмитрий Сергеев";
-    String copyrightFrom = "2005";
+    @Autowired
+    private PostService postService;
+
+    final String TITLE = "DevPub";
+    final String SUBTITLE = "Рассказы разработчиков";
+    final String PHONE = "+7 903 666-44-55";
+    final String EMAIL = "mail@mail.ru";
+    final String COPYRIGHT = "Дмитрий Сергеев";
+    final String COPYRIGHT_FROM = "2005";
 
     @GetMapping(value = "/api/init", produces = "application/json")
     public Map<String, String> getInitData(){
         logger.trace("Request /api/init");
 
         Map<String, String> data = new HashMap<>();
-        data.put("title", title);
-        data.put("subtitle", subtitle);
-        data.put("phone", phone);
-        data.put("email", email);
-        data.put("copyright", copyright);
-        data.put("copyrightFrom", copyrightFrom);
+        data.put("title", TITLE);
+        data.put("subtitle", SUBTITLE);
+        data.put("phone", PHONE);
+        data.put("email", EMAIL);
+        data.put("copyright", COPYRIGHT);
+        data.put("copyrightFrom", COPYRIGHT_FROM);
 
         return data;
     }
@@ -59,10 +67,9 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/api/tag")
-    public Iterable<Tag> getTags() {
+    public AllTagsResponce getTags(@RequestParam(required = false) String query) {
         logger.trace("Request /api/tag");
 
-        Iterable<Tag> tagsIterable = tagRepository.findAll();
-        return tagsIterable;
+        return new AllTagsResponce(tagService.findTagsWithWeight(query == null ? "": query));
     }
 }

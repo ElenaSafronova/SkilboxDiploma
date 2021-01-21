@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.ZonedDateTime;
@@ -14,6 +15,8 @@ import java.util.Map;
 
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
+    Iterable<Post> findByTagsContaining(Tag curTag);
+
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,
                                                               ZonedDateTime time,
@@ -77,6 +80,7 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                     "    p.view_count as viewCount FROM posts p WHERE p.is_active = 1 AND p.moderation_status = 'ACCEPTED'",
             nativeQuery = true)
     Map<String, String> findAllPosts();
+
 
 //    STR_TO_DATE(time, '%Y-%m-%d')
 

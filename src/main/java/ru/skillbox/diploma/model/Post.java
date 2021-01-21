@@ -66,11 +66,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostComment> postComments = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-//    private List<Tag2Post> tags = new ArrayList<>();
-
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
+
 
     @ManyToMany
     @JoinTable (name = "tag2post",

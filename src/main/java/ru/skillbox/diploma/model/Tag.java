@@ -3,10 +3,10 @@ package ru.skillbox.diploma.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Set;
 
 @Entity
 @Table(name = "tags")
@@ -21,5 +21,12 @@ public class Tag {
     @Column(length = 255)
     @NotBlank(message = "name cannot be null or whitespace")
     private String name;
+
+
+    @ManyToMany
+    @JoinTable (name = "tag2post",
+        joinColumns = @JoinColumn(name = "tag_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id"))
+    private Set<Post> posts;
 
 }

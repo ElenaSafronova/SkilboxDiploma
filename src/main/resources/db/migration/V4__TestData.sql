@@ -96,7 +96,9 @@ insert into tag2post(id, post_id, tag_id) values
     (3, 3, 1),
     (4, 3, 3),
     (5, 1, 3),
-    (6, 2, 3);
+    (6, 8, 3),
+    (7, 9, 3),
+    (8, 10, 3);
 
 insert into post_comments(id, parent_id, post_id, user_id, time, text) values
     (1, NULL, 2, 3, '2019-12-17 00:38', '- вот это просто отличные слова!'),
