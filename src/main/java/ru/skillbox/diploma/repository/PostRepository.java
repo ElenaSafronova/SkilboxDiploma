@@ -9,6 +9,7 @@ import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.value.PostStatus;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,13 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             Pageable pageable
     );
 
-
+    @Query(
+            value = "SELECT DATE(time) AS day, COUNT(DISTINCT id)  AS post_num " +
+                    "FROM posts " +
+                    "WHERE time BETWEEN ?1 AND ?2 " +
+                    "GROUP BY day",
+            nativeQuery = true)
+    List<String> findTotalPostsCount4EveryDay(LocalDateTime startDate, LocalDateTime endDate);
 
 
 
@@ -80,6 +87,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                     "    p.view_count as viewCount FROM posts p WHERE p.is_active = 1 AND p.moderation_status = 'ACCEPTED'",
             nativeQuery = true)
     Map<String, String> findAllPosts();
+
+
 
 
 //    STR_TO_DATE(time, '%Y-%m-%d')

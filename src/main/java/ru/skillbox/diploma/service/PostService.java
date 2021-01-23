@@ -12,14 +12,14 @@ import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.responce.AllPostResponse;
+import ru.skillbox.diploma.responce.CalendarResponce;
 import ru.skillbox.diploma.responce.PostResponse;
 import ru.skillbox.diploma.value.PostStatus;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -28,6 +28,8 @@ public class PostService {
     private PostRepository postRepository;
 
     Logger logger = LoggerFactory.getLogger(ApiPostController.class);
+
+    ZoneId zoneId = ZoneId.of( "UTC" );
 
     final String RECENT = "recent";
     final String POPULAR = "popular";
@@ -149,5 +151,47 @@ public class PostService {
         List<PostResponse> postResponseList = new ArrayList<>();
         postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
         return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
+    }
+
+    public CalendarResponce findTotalPostsCount4EveryDay(String years) {
+        List<Integer> yearList = new ArrayList<>();
+        try{
+            if (years.length() == 4 && Integer.parseInt(years) > 2005) {
+                yearList.add(Integer.parseInt(years));
+            }
+//           добавить else if - сплит и трим годов в виде списка
+
+            else{
+                yearList.add(Year.now().getValue());
+            }
+        }
+        catch (Exception ex){
+            yearList.add(Year.now().getValue());
+        }
+
+        Map<String, Long> postsMap = new HashMap<>();
+
+        for (int curYear : yearList) {
+            LocalDateTime startDate = LocalDate
+                    .parse(yearList.get(0) + "-01-01").atStartOfDay();
+            LocalDateTime endDate = startDate.plusYears(1);
+
+            logger.trace("get posts in time period:\nstartDate: " + startDate + "\n endDate: " + endDate);
+
+            List<Post> postsByDay = postRepository.findAllByIsActiveAndStatusAndTimeBetween(
+                    (byte) 1,
+                    PostStatus.ACCEPTED,
+                    startDate.atZone(zoneId),
+                    endDate.atZone(zoneId),
+                    null
+            ).toList();
+
+            postsMap = postsByDay.stream()
+                    .collect(Collectors.groupingBy(
+                            p -> p.getTime().toLocalDate()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), Collectors.counting()));
+        };
+
+        return new CalendarResponce(yearList, postsMap);
     }
 }

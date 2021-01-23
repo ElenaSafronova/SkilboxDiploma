@@ -7,18 +7,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.skillbox.diploma.model.GlobalSetting;
-import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
-import ru.skillbox.diploma.repository.TagRepository;
 import ru.skillbox.diploma.responce.AllTagsResponce;
-import ru.skillbox.diploma.responce.TagResponse;
+import ru.skillbox.diploma.responce.CalendarResponce;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.TagService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class ApiGeneralController {
@@ -70,6 +65,13 @@ public class ApiGeneralController {
     public AllTagsResponce getTags(@RequestParam(required = false) String query) {
         logger.trace("Request /api/tag");
 
-        return new AllTagsResponce(tagService.findTagsWithWeight(query == null ? "": query));
+        return new AllTagsResponce(tagService.findTagsWithWeight(query == null ? "" : query));
+    }
+
+    @GetMapping("/api/calendar")
+    public CalendarResponce getPosts4Calendar(@RequestParam(required = false) String years) {
+        logger.trace("Request /api/calendar");
+
+        return postService.findTotalPostsCount4EveryDay(years);
     }
 }
