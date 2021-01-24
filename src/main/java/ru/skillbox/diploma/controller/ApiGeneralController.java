@@ -12,6 +12,7 @@ import ru.skillbox.diploma.responce.AllTagsResponce;
 import ru.skillbox.diploma.responce.CalendarResponce;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.TagService;
+import ru.skillbox.diploma.value.GlobalSettingsValue;
 
 import java.util.*;
 
@@ -52,12 +53,20 @@ public class ApiGeneralController {
 
 
     @GetMapping("/api/settings")
-    public Map<String, String> getGlobalSettings(){
+    public Map<String, Boolean> getGlobalSettings(){
         logger.trace("Request /api/globalSettings");
 
-        Map<String, String> settings = new HashMap<>();
-        Iterable<GlobalSetting> globalSettings = globalSettingRepository.findAll();
-        globalSettings.forEach(s -> settings.put(s.getCode(), s.getValue()));
+        Map<String, Boolean> settings = new HashMap<>();
+        Iterator<GlobalSetting> iter = globalSettingRepository.findAll().iterator();
+        while(iter.hasNext())
+        {
+            GlobalSetting curSettings = iter.next();
+            if (curSettings.getValue().equals(GlobalSettingsValue.YES.name())) {
+                settings.put(curSettings.getCode(), true);
+            } else if (curSettings.getValue().equals(GlobalSettingsValue.NO.name())) {
+                settings.put(curSettings.getCode(), false);
+            }
+        }
         return settings;
     }
 
