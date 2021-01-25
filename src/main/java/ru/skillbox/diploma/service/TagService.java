@@ -4,19 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.controller.ApiGeneralController;
-import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
 import ru.skillbox.diploma.responce.TagResponse;
 import ru.skillbox.diploma.value.PostStatus;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class TagService {
@@ -33,17 +31,8 @@ public class TagService {
     }
 
     public List<TagResponse> findTagsWithWeight(String tagQuery) {
-        int postsTotalCount = (postRepository
-                .findAllByIsActiveAndStatusAndTimeLessThanEqual(
-                        (byte) 1,
-                        PostStatus.ACCEPTED,
-                        ZonedDateTime.now(),
-                        PageRequest.of(0, Integer.MAX_VALUE)
-                ))
-                .toList().size(); // количество активных публикаций, утверждённых модератором со временем публикации, не превышающем текущее время
-
+        int postsTotalCount = countActivePosts(); // количество активных публикаций, утверждённых модератором со временем публикации, не превышающем текущее время
         Iterable<Tag> allTags;
-
         if (tagQuery.isBlank()){
             allTags = tagRepository.findAll();
         }
@@ -51,19 +40,55 @@ public class TagService {
             logger.trace("?query=" + tagQuery);
             allTags = tagRepository.findByNameContaining(tagQuery);
         }
+        logger.trace("PostsByTags count: " + ((Collection<Tag>) allTags).size() +
+                "\t postsTotalCount = " + postsTotalCount);
 
-        System.out.println("PostsByTags table:");
+        return generateTagResponses(allTags, postsTotalCount);
+    }
+
+    private List<TagResponse> generateTagResponses(Iterable<Tag> allTags, int postsTotalCount) {
         List<TagResponse> tagResponses = new ArrayList<>();
-        allTags.forEach(curTag ->{
+        Map<String, Integer> tagsMap = new HashMap<>(); // для промежуточных рассчетов
+        int maxFrequency = 1;
+        String tagPopular = null;
+        for (Tag curTag : allTags) {
+            String curTagName = curTag.getName();
+
             int postsCountByTag = ((List) postRepository
                     .findByTagsContaining(curTag)).size();  //Кол-во публикаций с данным тэгом
-            System.out.println("curTag " + curTag.getName()
-                    + " postsCountByTag " + postsCountByTag);
-
+            tagsMap.put(curTagName, postsCountByTag);
+            if (maxFrequency < postsCountByTag){
+                maxFrequency = postsCountByTag;
+                tagPopular = curTag.getName();
+            }
             double weight = (double) postsCountByTag / postsTotalCount;
-            tagResponses.add(new TagResponse(curTag.getName(), weight));
-        });
 
+            logger.trace("curTag " + curTagName
+                    + " postsCountByTag " + postsCountByTag + " weight " + weight);
+            tagResponses.add(new TagResponse(curTagName, weight));
+        }
+        calculateWeights(tagResponses, postsTotalCount, maxFrequency, tagPopular);
         return tagResponses;
+    }
+
+    private void calculateWeights(List<TagResponse> tagResponses, int postsTotalCount, int maxFrequency, String tagPopular) {
+        double weightMax = (double) maxFrequency / postsTotalCount;
+        double k = 1 / weightMax;
+        logger.trace("weightMax = " + weightMax + "\tk = " + k);
+        for (TagResponse el : tagResponses) {
+            el.setWeight(el.getWeight().doubleValue() * k);
+            logger.trace(el.getName() + " " + el.getWeight());
+        }
+    }
+
+    private int countActivePosts() {
+        return (postRepository
+                .findAllByIsActiveAndStatusAndTimeLessThanEqual(
+                        (byte) 1,
+                        PostStatus.ACCEPTED,
+                        ZonedDateTime.now(),
+                        PageRequest.of(0, Integer.MAX_VALUE)
+                ))
+                .toList().size();
     }
 }

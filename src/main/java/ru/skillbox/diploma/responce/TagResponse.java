@@ -1,22 +1,20 @@
 package ru.skillbox.diploma.responce;
-
 import lombok.Data;
-import ru.skillbox.diploma.model.Tag;
-
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Data
 public class TagResponse {
     private String name;
-    private String weight;
+    private Double weight;
 
     public TagResponse(String name, double weight) {
-        DecimalFormat dec = new DecimalFormat("#0.00");
-
         this.name = name;
-        this.weight = dec.format(weight);
+        this.weight = weight;
+    }
 
-//        this.weight = Double.parseDouble(String.format("%.3f", weight));
+    public void setWeight(Double weight) {
+        this.weight = new BigDecimal(weight).setScale(2, RoundingMode.HALF_UP).doubleValue();;
     }
 }
 
