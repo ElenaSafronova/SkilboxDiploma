@@ -27,7 +27,7 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    Logger logger = LoggerFactory.getLogger(ApiPostController.class);
+    Logger logger = LoggerFactory.getLogger(PostService.class);
 
     ZoneId zoneId = ZoneId.of( "UTC" );
 

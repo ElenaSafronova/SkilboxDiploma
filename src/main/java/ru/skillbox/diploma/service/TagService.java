@@ -24,7 +24,7 @@ public class TagService {
     @Autowired
     private PostRepository postRepository;
 
-    Logger logger = LoggerFactory.getLogger(ApiGeneralController.class);
+    Logger logger = LoggerFactory.getLogger(TagService.class);
 
     public Iterable<Tag> findAll() {
         return tagRepository.findAll();

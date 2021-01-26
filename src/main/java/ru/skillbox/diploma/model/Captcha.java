@@ -1,10 +1,8 @@
 package ru.skillbox.diploma.model;
 
-import jdk.jfr.BooleanFlag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CaptchaCode {
+public class Captcha {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
@@ -25,9 +23,16 @@ public class CaptchaCode {
     private LocalDateTime time;
 
     @NotNull(message = "code cannot be null")
-    private byte code;
+    private String code;
 
     @Column(name = "secret_code")
     @NotNull(message = "secretCode cannot be null")
-    private byte secretCode;
+    private String secretCode;
+
+    public Captcha(@NotNull(message = "code cannot be null") String code,
+                   @NotNull(message = "secretCode cannot be null") String secretCode) {
+        this.code = code;
+        this.secretCode = secretCode;
+        this.time = LocalDateTime.now();
+    }
 }

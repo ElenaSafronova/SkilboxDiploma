@@ -6,8 +6,8 @@ insert into hibernate_sequence values ( 1 );
 
 create table captcha_codes(
     id integer not null auto_increment,
-    code tinyint not null,
-    secret_code tinyint not null,
+    code tinytext not null,
+    secret_code tinytext not null,
     time datetime not null,
     primary key (id)
 );
@@ -68,11 +68,11 @@ create table tags (
 create table users (
     id integer not null auto_increment,
     code varchar(255),
-    email varchar(255),
-    is_moderator tinyint,
-    name varchar(255),
-    password varchar(255),
+    email varchar(255) not null,
+    is_moderator tinyint not null,
+    name varchar(255) not null,
+    password varchar(255) not null,
     photo Text,
-    reg_time datetime,
+    reg_time datetime not null,
     primary key (id)
 );
