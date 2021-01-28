@@ -58,6 +58,11 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
 
     int countByStatus(PostStatus postStatus);
 
+    int countByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
+                                                     PostStatus status,
+                                                     ZonedDateTime time
+    );
+
 
     @Query( "FROM Post p " +
             "WHERE p.isActive = 1 AND p.status='ACCEPTED' " +

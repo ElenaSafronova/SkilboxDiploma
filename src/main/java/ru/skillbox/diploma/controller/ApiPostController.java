@@ -27,17 +27,17 @@ public class ApiPostController {
     Logger logger = LoggerFactory.getLogger(ApiPostController.class);
 
     @GetMapping("/api/post")
-    public ResponseEntity<AllPostResponse> getAllPosts(@RequestParam int offset,
-                                                       @RequestParam int limit,
+    public ResponseEntity<AllPostResponse> getAllPosts(@RequestParam(required = false, defaultValue = "0") int offset,
+                                                       @RequestParam(required = false, defaultValue = "10") int limit,
                                                        @RequestParam String mode){
         logger.trace("/api/post");
-        AllPostResponse postResponse = postService.getActiveAndAcceptedPosts(offset, limit, mode);
+        AllPostResponse postResponse = postService.getActiveAndAcceptedPosts(offset/10, limit, mode);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
     @GetMapping("/api/post/search")
-    public ResponseEntity<AllPostResponse> getSearchedPosts(@RequestParam int offset,
-                                                       @RequestParam int limit,
+    public ResponseEntity<AllPostResponse> getSearchedPosts(@RequestParam(required = false, defaultValue = "0") int offset,
+                                                       @RequestParam(required = false, defaultValue = "10") int limit,
                                                        @RequestParam String query){
         logger.trace("/api/post/search");
         AllPostResponse postResponse = postService.searchPosts(
@@ -45,13 +45,13 @@ public class ApiPostController {
                 PostStatus.ACCEPTED,
                 ZonedDateTime.now(),
                 query,
-                PageRequest.of(offset, limit));
+                PageRequest.of(offset/10, limit));
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
     @GetMapping("/api/post/byDate")
-    public ResponseEntity<AllPostResponse> getPostsByDate(@RequestParam int offset,
-                                                          @RequestParam int limit,
+    public ResponseEntity<AllPostResponse> getPostsByDate(@RequestParam(required = false, defaultValue = "0") int offset,
+                                                          @RequestParam(required = false, defaultValue = "10") int limit,
                                                           @RequestParam String date){
         LocalDate dateLocal = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         ZonedDateTime dateStart = dateLocal.atStartOfDay(ZoneOffset.UTC);
@@ -59,16 +59,16 @@ public class ApiPostController {
         logger.trace("Request /api/post/byDate?offset=" + offset +
                 "&limit="+ limit  + "&dateStart=" + dateStart + "&dateFinish=" + dateFinish);
 
-        AllPostResponse postResponse = postService.getPostsByDate(offset, limit, dateStart, dateFinish);
+        AllPostResponse postResponse = postService.getPostsByDate(offset/10, limit, dateStart, dateFinish);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
     @GetMapping("/api/post/byTag")
-    public ResponseEntity<AllPostResponse> getPostsByTag(@RequestParam int offset,
-                                                       @RequestParam int limit,
+    public ResponseEntity<AllPostResponse> getPostsByTag(@RequestParam(required = false, defaultValue = "0") int offset,
+                                                       @RequestParam(required = false, defaultValue = "10") int limit,
                                                        @RequestParam String tag){
         logger.trace("/api/post/byTag?tag=" + tag);
-        AllPostResponse postResponse = postService.findPostsByTag(offset, limit, tag);
+        AllPostResponse postResponse = postService.findPostsByTag(offset/10, limit, tag);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

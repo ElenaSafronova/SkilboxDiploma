@@ -74,6 +74,14 @@ public class PostService {
         return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
     }
 
+    public int countActiveAndAcceptedPosts(){
+        logger.trace("count active and accepted posts");
+        return postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
+                                                        (byte) 1,
+                                                        PostStatus.ACCEPTED,
+                                                        ZonedDateTime.now()
+        );
+    }
 
     public AllPostResponse getActiveAndAcceptedPosts(int offset, int limit, String mode) {
 
@@ -82,27 +90,38 @@ public class PostService {
 
         Pageable pagingAndSorting = definePagingAndSortingType(mode, offset, limit);
 
-        Page<Post> postList = findAllActivePosts(
+        Page<Post> postPage = findAllActivePosts(
                 (byte) 1,
                 PostStatus.ACCEPTED,
                 ZonedDateTime.now(),
                 pagingAndSorting);
 
+        int number = postPage.getNumber();
+        int numberOfElements = postPage.getNumberOfElements();
+        int size = postPage.getSize();
+        int totalElements = (int) postPage.getTotalElements();
+        int totalPages = postPage.getTotalPages();
+        System.out.printf("page info - page number %s, numberOfElements: %s, size: %s, "
+                        + "totalElements: %s, totalPages: %s%n",
+                number, numberOfElements, size, totalElements, totalPages);
+
         List<PostResponse> postResponseList = new ArrayList<>();
-        postList.forEach(post ->  postResponseList.add(new PostResponse(post)));
+        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
 
         switch (mode) {
             case POPULAR:
                 logger.trace("posts sorted by getPostComments().size()");
-                postResponseList.stream().sorted(Comparator.comparingInt(p -> p.getCommentCount()));
+                postResponseList.stream()
+                        .sorted(Comparator.comparingInt(PostResponse::getCommentCount));
                 break;
             case BEST:
                 logger.trace("posts sorted by getVotes().size() where value = 1");
-                postResponseList.stream().sorted(Comparator.comparing(p -> p.getLikeCount()));
+                postResponseList.stream()
+                        .sorted(Comparator.comparing(PostResponse::getLikeCount));
                 break;
         }
 
-        return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
+        return new AllPostResponse(totalElements, postResponseList);
     }
 
     public AllPostResponse getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){
