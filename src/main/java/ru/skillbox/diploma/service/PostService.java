@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.controller.ApiPostController;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.responce.AllPostResponse;
 import ru.skillbox.diploma.responce.CalendarResponce;
@@ -193,5 +194,10 @@ public class PostService {
         };
 
         return new CalendarResponce(yearList, postsMap);
+    }
+
+    public int countByModerationStatus(PostStatus postStatus) {
+        logger.trace("count posts by status (countByModerationStatus): " + postStatus.toString());
+        return postRepository.countByStatus(postStatus);
     }
 }

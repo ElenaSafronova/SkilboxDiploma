@@ -56,6 +56,7 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             nativeQuery = true)
     List<String> findTotalPostsCount4EveryDay(LocalDateTime startDate, LocalDateTime endDate);
 
+    int countByStatus(PostStatus postStatus);
 
 
     @Query( "FROM Post p " +

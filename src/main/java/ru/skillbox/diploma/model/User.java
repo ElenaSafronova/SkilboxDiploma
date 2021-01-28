@@ -10,8 +10,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -43,21 +43,24 @@ public class User {
     @NotBlank(message = "password cannot be null or whitespace")
     private String password;
 
+    @Transient
+    private String confirmPassword;
+
     private String code;
 
     @Column(columnDefinition="Text")
     private String photo;
 
-//    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
-//    private List<Post> moderatedPostList = new ArrayList<>();
+    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
+    private List<Post> moderatedPostsList;
 
-//    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-//    private List<Post> postList = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<PostComment> postCommentsList = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Vote> postVotesList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> postList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<PostComment> postCommentsList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Vote> postVotesList;
 
 }

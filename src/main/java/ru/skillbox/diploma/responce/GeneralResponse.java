@@ -1,10 +1,7 @@
 package ru.skillbox.diploma.responce;
 
-import ru.skillbox.diploma.model.Post;
-
-import java.util.List;
+import java.util.Map;
 
 public class GeneralResponse {
-    private int allActiveAndAcceptedPostsCount;
-    private List<Post> allActiveAndAcceptedPosts;
+    private Map<String, Integer> allActiveUsers; // со значением, равным ID пользователя, которому принадлежит данная сессия
 }
