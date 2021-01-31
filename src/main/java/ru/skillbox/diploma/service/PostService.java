@@ -17,6 +17,8 @@ import ru.skillbox.diploma.Dto.AllPostDto;
 import ru.skillbox.diploma.Dto.CalendarDto;
 import ru.skillbox.diploma.Dto.PostDto;
 import ru.skillbox.diploma.repository.VoteRepository;
+import ru.skillbox.diploma.value.GlobalSettingCode;
+import ru.skillbox.diploma.value.GlobalSettingValue;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.*;
@@ -35,6 +37,9 @@ public class PostService {
 
     @Autowired
     private VoteRepository voteRepository;
+
+    @Autowired
+    private GlobalSettingsService globalSettingsService;
 
     Logger logger = LoggerFactory.getLogger(PostService.class);
 
@@ -233,18 +238,30 @@ public class PostService {
     }
 
     public StatisticsDto getStatisticsAll() {
-        int postsCount = postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
-                (byte) 1,
-                PostStatus.ACCEPTED,
-                ZonedDateTime.now());
-        int likes = voteRepository.countByValue((byte) 1);
-        int dislikes = voteRepository.countByValue((byte) -1);
-        int viewCount = postRepository.viewCountSum(ZonedDateTime.now());
-        long firstPublication = Instant.from(postRepository.findPostListByIsActiveAndStatusAndTimeLessThanEqual(
-                (byte) 1,
-                PostStatus.ACCEPTED,
-                ZonedDateTime.now()
-        ).get(0).getTime()).getEpochSecond();
-        return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
+        System.out.println(globalSettingsService.findByCode(GlobalSettingCode.STATISTICS_IS_PUBLIC.name()));
+        // В случае, если
+        // публичный показ статистики блога запрещён
+        // (см. соответствующий параметр в global_settings)
+        // и текущий пользователь не модератор, должна выдаваться ошибка 401
+         if (globalSettingsService
+                .findByCode(GlobalSettingCode.STATISTICS_IS_PUBLIC
+                        .name()).getValue()
+                .equals(GlobalSettingValue.YES.name()))
+        {
+            int postsCount = postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
+                    (byte) 1,
+                    PostStatus.ACCEPTED,
+                    ZonedDateTime.now());
+            int likes = voteRepository.countByValue((byte) 1);
+            int dislikes = voteRepository.countByValue((byte) -1);
+            int viewCount = postRepository.viewCountSum(ZonedDateTime.now());
+            long firstPublication = Instant.from(postRepository.findPostListByIsActiveAndStatusAndTimeLessThanEqual(
+                    (byte) 1,
+                    PostStatus.ACCEPTED,
+                    ZonedDateTime.now()
+            ).get(0).getTime()).getEpochSecond();
+            return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
+        }
+        return null;
     }
 }

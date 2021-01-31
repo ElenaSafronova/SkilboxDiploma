@@ -3,17 +3,17 @@ package ru.skillbox.diploma.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.skillbox.diploma.Dto.StatisticsDto;
-import ru.skillbox.diploma.model.GlobalSetting;
-import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.Dto.AllTagsDto;
 import ru.skillbox.diploma.Dto.CalendarDto;
+import ru.skillbox.diploma.service.GlobalSettingsService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.TagService;
-import ru.skillbox.diploma.value.GlobalSettingsValue;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class ApiGeneralController {
     Logger logger = LoggerFactory.getLogger(ApiGeneralController.class);
 
     @Autowired
-    private GlobalSettingRepository globalSettingRepository;
+    private GlobalSettingsService globalSettingsService;
 
     @Autowired
     private TagService tagService;
@@ -56,19 +56,7 @@ public class ApiGeneralController {
     @GetMapping("/api/settings")
     public Map<String, Boolean> getGlobalSettings(){
         logger.trace("Request /api/globalSettings");
-
-        Map<String, Boolean> settings = new HashMap<>();
-        Iterator<GlobalSetting> iter = globalSettingRepository.findAll().iterator();
-        while(iter.hasNext())
-        {
-            GlobalSetting curSettings = iter.next();
-            if (curSettings.getValue().equals(GlobalSettingsValue.YES.name())) {
-                settings.put(curSettings.getCode(), true);
-            } else if (curSettings.getValue().equals(GlobalSettingsValue.NO.name())) {
-                settings.put(curSettings.getCode(), false);
-            }
-        }
-        return settings;
+        return globalSettingsService.getSettings();
     }
 
     @GetMapping("/api/tag")
@@ -85,8 +73,12 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/api/statistics/all")
-    public StatisticsDto getStatisticsAll() {
+    public ResponseEntity<StatisticsDto> getStatisticsAll() {
         logger.trace("Request /api/statistics/all");
-        return postService.getStatisticsAll();
+        StatisticsDto response = postService.getStatisticsAll();
+        if (response == null){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -1,6 +1,6 @@
 package ru.skillbox.diploma.value;
 
-public enum GlobalSettingsValue {
+public enum GlobalSettingValue {
     YES,
     NO
 }
