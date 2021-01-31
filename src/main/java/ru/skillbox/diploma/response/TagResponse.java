@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.responce;
+package ru.skillbox.diploma.response;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -5,14 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.controller.ApiGeneralController;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
-import ru.skillbox.diploma.responce.TagResponse;
+import ru.skillbox.diploma.response.TagResponse;
 import ru.skillbox.diploma.value.PostStatus;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -63,7 +61,7 @@ public class TagService {
             }
             double weight = (double) postsCountByTag / postsTotalCount;
 
-            logger.trace("curTag " + curTagName
+            logger.info("curTag " + curTagName
                     + " postsCountByTag " + postsCountByTag + " weight " + weight);
             tagResponses.add(new TagResponse(curTagName, weight));
         }
@@ -77,7 +75,7 @@ public class TagService {
         logger.trace("weightMax = " + weightMax + "\tk = " + k);
         for (TagResponse el : tagResponses) {
             el.setWeight(el.getWeight().doubleValue() * k);
-            logger.trace(el.getName() + " " + el.getWeight());
+            logger.info(el.getName() + " " + el.getWeight());
         }
     }
 

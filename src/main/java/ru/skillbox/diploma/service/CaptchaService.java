@@ -6,10 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.controller.ApiAuthController;
 import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.repository.CaptchaRepository;
-import ru.skillbox.diploma.responce.CaptchaResponse;
+import ru.skillbox.diploma.response.CaptchaResponse;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

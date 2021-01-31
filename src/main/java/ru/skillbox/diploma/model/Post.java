@@ -69,11 +69,13 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post")
+    List<Tag2Post> tag2Posts;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable (name = "tag2post",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<Tag> tags;
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
+    private List<Tag> tags = new ArrayList<>();
 }
 

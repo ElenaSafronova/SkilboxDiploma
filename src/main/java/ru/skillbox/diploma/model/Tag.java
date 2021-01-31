@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,6 +23,8 @@ public class Tag {
     @NotBlank(message = "name cannot be null or whitespace")
     private String name;
 
+    @OneToMany(mappedBy = "tag")
+    List<Tag2Post> tag2Posts;
 
     @ManyToMany
     @JoinTable (name = "tag2post",

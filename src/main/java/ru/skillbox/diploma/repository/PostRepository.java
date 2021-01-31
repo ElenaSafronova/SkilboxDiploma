@@ -2,11 +2,13 @@ package ru.skillbox.diploma.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.Tag;
+import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
+
     Iterable<Post> findByTagsContaining(Tag curTag);
 
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
@@ -63,6 +66,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                      ZonedDateTime time
     );
 
+    Post findById(int id);
+
 
     @Query( "FROM Post p " +
             "WHERE p.isActive = 1 AND p.status='ACCEPTED' " +
@@ -94,7 +99,9 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             nativeQuery = true)
     Map<String, String> findAllPosts();
 
-
+    @Modifying
+    @Query("update Post p set p.viewCount = ?2 where p.id = ?1")
+    void updateViewCount(int id, int viewCount);
 
 
 //    STR_TO_DATE(time, '%Y-%m-%d')

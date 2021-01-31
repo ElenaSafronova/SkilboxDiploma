@@ -8,13 +8,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.controller.ApiPostController;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.diploma.model.Post;
-import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.PostRepository;
-import ru.skillbox.diploma.responce.AllPostResponse;
-import ru.skillbox.diploma.responce.CalendarResponce;
-import ru.skillbox.diploma.responce.PostResponse;
+import ru.skillbox.diploma.response.AllPostResponse;
+import ru.skillbox.diploma.response.CalendarResponce;
+import ru.skillbox.diploma.response.PostResponse;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.*;
@@ -41,7 +40,11 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Optional<Post> findById(int id){
+    @Transactional
+    public Post findById(int id){
+        int newViewCount = postRepository.findById(id).getViewCount() + 1;
+        logger.trace("update Post p set p.viewCount = " + newViewCount + " where p.id = " + id);
+        postRepository.updateViewCount(id, newViewCount);
         return postRepository.findById(id);
     }
 

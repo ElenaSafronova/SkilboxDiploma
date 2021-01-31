@@ -10,9 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.responce.CaptchaResponse;
+import ru.skillbox.diploma.response.CaptchaResponse;
 import ru.skillbox.diploma.service.CaptchaService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.UserService;
@@ -61,6 +60,9 @@ public class ApiAuthController {
             logger.trace("postService.countByModerationStatus(PostStatus.NEW)");
             userDataResponce.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
         }
+        // TODO: Если пользователь авторизован, идентификатор его сессии должен запоминаться в
+        //  Map<String, Integer> со значением, равным ID пользователя, которому принадлежит данная сессия.
+
         return new ResponseEntity<>(new Authentication(userDataResponce), HttpStatus.OK);
     }
 }
