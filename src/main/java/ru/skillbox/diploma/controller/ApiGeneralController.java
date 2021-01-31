@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.skillbox.diploma.Dto.StatisticsDto;
 import ru.skillbox.diploma.model.GlobalSetting;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.Dto.AllTagsDto;
@@ -80,7 +81,12 @@ public class ApiGeneralController {
     @GetMapping("/api/calendar")
     public CalendarDto getPosts4Calendar(@RequestParam(required = false) String years) {
         logger.trace("Request /api/calendar");
-
         return postService.findTotalPostsCount4EveryDay(years);
+    }
+
+    @GetMapping("/api/statistics/all")
+    public StatisticsDto getStatisticsAll() {
+        logger.trace("Request /api/statistics/all");
+        return postService.getStatisticsAll();
     }
 }

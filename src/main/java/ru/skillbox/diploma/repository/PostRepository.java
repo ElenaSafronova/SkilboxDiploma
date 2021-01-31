@@ -21,6 +21,13 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
 
     Iterable<Post> findByTagsContaining(Tag curTag);
 
+    Post findById(int id);
+
+    List<Post> findPostListByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
+                                                              PostStatus status,
+                                                              ZonedDateTime time
+    );
+
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,
                                                               ZonedDateTime time,
@@ -51,6 +58,21 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             Pageable pageable
     );
 
+    int countByStatus(PostStatus postStatus);
+
+    int countByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
+                                                     PostStatus status,
+                                                     ZonedDateTime time
+    );
+
+    @Modifying
+    @Query("UPDATE Post p SET p.viewCount = ?2 WHERE p.id = ?1")
+    void updateViewCount(int id, int viewCount);
+
+    @Query("SELECT SUM(p.viewCount) FROM Post p " +
+            "WHERE p.isActive = 1 AND p.status='ACCEPTED' AND p.time <= ?1")
+    int viewCountSum(ZonedDateTime dateTime);
+
     @Query(
             value = "SELECT DATE(time) AS day, COUNT(DISTINCT id)  AS post_num " +
                     "FROM posts " +
@@ -59,14 +81,9 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             nativeQuery = true)
     List<String> findTotalPostsCount4EveryDay(LocalDateTime startDate, LocalDateTime endDate);
 
-    int countByStatus(PostStatus postStatus);
 
-    int countByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
-                                                     PostStatus status,
-                                                     ZonedDateTime time
-    );
 
-    Post findById(int id);
+
 
 
     @Query( "FROM Post p " +
@@ -99,9 +116,6 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             nativeQuery = true)
     Map<String, String> findAllPosts();
 
-    @Modifying
-    @Query("update Post p set p.viewCount = ?2 where p.id = ?1")
-    void updateViewCount(int id, int viewCount);
 
 
 //    STR_TO_DATE(time, '%Y-%m-%d')

@@ -9,11 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.skillbox.diploma.Dto.StatisticsDto;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.Dto.AllPostDto;
 import ru.skillbox.diploma.Dto.CalendarDto;
 import ru.skillbox.diploma.Dto.PostDto;
+import ru.skillbox.diploma.repository.VoteRepository;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.*;
@@ -26,6 +29,12 @@ import java.util.stream.Collectors;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private GlobalSettingRepository globalSettingRepository;
+
+    @Autowired
+    private VoteRepository voteRepository;
 
     Logger logger = LoggerFactory.getLogger(PostService.class);
 
@@ -221,5 +230,21 @@ public class PostService {
     public int countByModerationStatus(PostStatus postStatus) {
         logger.trace("count posts by status (countByModerationStatus): " + postStatus.toString());
         return postRepository.countByStatus(postStatus);
+    }
+
+    public StatisticsDto getStatisticsAll() {
+        int postsCount = postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now());
+        int likes = voteRepository.countByValue((byte) 1);
+        int dislikes = voteRepository.countByValue((byte) -1);
+        int viewCount = postRepository.viewCountSum(ZonedDateTime.now());
+        long firstPublication = Instant.from(postRepository.findPostListByIsActiveAndStatusAndTimeLessThanEqual(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now()
+        ).get(0).getTime()).getEpochSecond();
+        return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
     }
 }
