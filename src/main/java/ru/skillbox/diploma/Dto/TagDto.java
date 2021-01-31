@@ -1,14 +1,14 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Data
-public class TagResponse {
+public class TagDto {
     private String name;
     private Double weight;
 
-    public TagResponse(String name, double weight) {
+    public TagDto(String name, double weight) {
         this.name = name;
         this.weight = weight;
     }

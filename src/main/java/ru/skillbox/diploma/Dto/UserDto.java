@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 
 import lombok.Data;
 import ru.skillbox.diploma.model.User;

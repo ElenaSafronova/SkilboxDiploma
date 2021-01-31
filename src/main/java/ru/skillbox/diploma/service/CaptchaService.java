@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.repository.CaptchaRepository;
-import ru.skillbox.diploma.response.CaptchaResponse;
+import ru.skillbox.diploma.Dto.CaptchaDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,7 +43,7 @@ public class CaptchaService {
         captchaRepository.deleteBooks(time);
     }
 
-    public CaptchaResponse generateCaptcha() throws IOException  {
+    public CaptchaDto generateCaptcha() throws IOException  {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         String captchaResponseStarting = "data:image/png;base64, ";
         int captchaW = 150;
@@ -66,7 +66,7 @@ public class CaptchaService {
         logger.trace("New DB element. Table captcha_codes: " + code +
                 " secretCode: " + uniqueKey);
 
-        return new CaptchaResponse(uniqueKey,
+        return new CaptchaDto(uniqueKey,
                 captchaResponseStarting + encodedString);
     }
 

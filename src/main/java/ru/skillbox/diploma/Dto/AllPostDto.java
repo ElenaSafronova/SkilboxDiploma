@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class AllPostResponse {
+public class AllPostDto {
     private int count;
-    private List<PostResponse> posts;
+    private List<PostDto> posts;
 }

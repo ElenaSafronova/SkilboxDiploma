@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.skillbox.diploma.model.GlobalSetting;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
-import ru.skillbox.diploma.response.AllTagsResponce;
-import ru.skillbox.diploma.response.CalendarResponce;
+import ru.skillbox.diploma.Dto.AllTagsDto;
+import ru.skillbox.diploma.Dto.CalendarDto;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.TagService;
 import ru.skillbox.diploma.value.GlobalSettingsValue;
@@ -71,14 +71,14 @@ public class ApiGeneralController {
     }
 
     @GetMapping("/api/tag")
-    public AllTagsResponce getTags(@RequestParam(required = false) String query) {
+    public AllTagsDto getTags(@RequestParam(required = false) String query) {
         logger.trace("Request /api/tag");
 
-        return new AllTagsResponce(tagService.findTagsWithWeight(query == null ? "" : query));
+        return new AllTagsDto(tagService.findTagsWithWeight(query == null ? "" : query));
     }
 
     @GetMapping("/api/calendar")
-    public CalendarResponce getPosts4Calendar(@RequestParam(required = false) String years) {
+    public CalendarDto getPosts4Calendar(@RequestParam(required = false) String years) {
         logger.trace("Request /api/calendar");
 
         return postService.findTotalPostsCount4EveryDay(years);

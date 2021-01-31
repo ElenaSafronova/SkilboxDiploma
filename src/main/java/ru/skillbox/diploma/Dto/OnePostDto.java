@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 
 import lombok.Data;
 import ru.skillbox.diploma.model.Post;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class OnePostResponse {
+public class OnePostDto {
     private int id;
     private long timestamp;
     private int active;
@@ -20,10 +20,10 @@ public class OnePostResponse {
     private int likeCount;
     private int dislikeCount;
     private int viewCount;
-    private List<CommentsResponse> comments;
+    private List<CommentsDto> comments;
     private List<String> tags = new ArrayList<>();
 
-    public OnePostResponse(Post post){
+    public OnePostDto(Post post){
         this.id = post.getId();
         this.timestamp = Instant.from(post.getTime()).getEpochSecond();
         this.active = post.getIsActive();
@@ -38,10 +38,10 @@ public class OnePostResponse {
         });
     }
 
-    private List<CommentsResponse> defineComments(List<PostComment> comments) {
-        List<CommentsResponse> commentsResponses = new ArrayList<>();
-        comments.forEach(com -> commentsResponses.add(new CommentsResponse(com)));
-        return commentsResponses;
+    private List<CommentsDto> defineComments(List<PostComment> comments) {
+        List<CommentsDto> commentsRespons = new ArrayList<>();
+        comments.forEach(com -> commentsRespons.add(new CommentsDto(com)));
+        return commentsRespons;
     }
 
     private void countLikesAndDislikes(List<Vote> votes) {

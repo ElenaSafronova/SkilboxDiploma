@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
-import ru.skillbox.diploma.response.TagResponse;
+import ru.skillbox.diploma.Dto.TagDto;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.ZonedDateTime;
@@ -28,7 +28,7 @@ public class TagService {
         return tagRepository.findAll();
     }
 
-    public List<TagResponse> findTagsWithWeight(String tagQuery) {
+    public List<TagDto> findTagsWithWeight(String tagQuery) {
         int postsTotalCount = countActivePosts(); // количество активных публикаций, утверждённых модератором со временем публикации, не превышающем текущее время
         Iterable<Tag> allTags;
         if (tagQuery.isBlank()){
@@ -44,8 +44,8 @@ public class TagService {
         return generateTagResponses(allTags, postsTotalCount);
     }
 
-    private List<TagResponse> generateTagResponses(Iterable<Tag> allTags, int postsTotalCount) {
-        List<TagResponse> tagResponses = new ArrayList<>();
+    private List<TagDto> generateTagResponses(Iterable<Tag> allTags, int postsTotalCount) {
+        List<TagDto> tagResponses = new ArrayList<>();
         Map<String, Integer> tagsMap = new HashMap<>(); // для промежуточных рассчетов
         int maxFrequency = 1;
         String tagPopular = null;
@@ -63,17 +63,17 @@ public class TagService {
 
             logger.info("curTag " + curTagName
                     + " postsCountByTag " + postsCountByTag + " weight " + weight);
-            tagResponses.add(new TagResponse(curTagName, weight));
+            tagResponses.add(new TagDto(curTagName, weight));
         }
         calculateWeights(tagResponses, postsTotalCount, maxFrequency, tagPopular);
         return tagResponses;
     }
 
-    private void calculateWeights(List<TagResponse> tagResponses, int postsTotalCount, int maxFrequency, String tagPopular) {
+    private void calculateWeights(List<TagDto> tagResponses, int postsTotalCount, int maxFrequency, String tagPopular) {
         double weightMax = (double) maxFrequency / postsTotalCount;
         double k = 1 / weightMax;
         logger.trace("weightMax = " + weightMax + "\tk = " + k);
-        for (TagResponse el : tagResponses) {
+        for (TagDto el : tagResponses) {
             el.setWeight(el.getWeight().doubleValue() * k);
             logger.info(el.getName() + " " + el.getWeight());
         }

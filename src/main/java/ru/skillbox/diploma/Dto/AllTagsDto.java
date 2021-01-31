@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,6 @@ import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class AllTagsResponce {
-    private List<TagResponse> tags;
+public class AllTagsDto {
+    private List<TagDto> tags;
 }

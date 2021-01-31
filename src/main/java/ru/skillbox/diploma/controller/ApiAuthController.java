@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.response.CaptchaResponse;
+import ru.skillbox.diploma.Dto.CaptchaDto;
 import ru.skillbox.diploma.service.CaptchaService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.UserService;
@@ -41,9 +41,9 @@ public class ApiAuthController {
     }
 
     @GetMapping("/captcha")
-    public ResponseEntity<CaptchaResponse> getCaptcha() throws IOException {
-        CaptchaResponse captchaResponse = captchaService.generateCaptcha();
-        return new ResponseEntity<>(captchaResponse, HttpStatus.OK);
+    public ResponseEntity<CaptchaDto> getCaptcha() throws IOException {
+        CaptchaDto captchaDto = captchaService.generateCaptcha();
+        return new ResponseEntity<>(captchaDto, HttpStatus.OK);
     }
 
     @ResponseBody

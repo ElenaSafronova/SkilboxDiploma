@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.repository.PostRepository;
-import ru.skillbox.diploma.response.AllPostResponse;
-import ru.skillbox.diploma.response.CalendarResponce;
-import ru.skillbox.diploma.response.PostResponse;
+import ru.skillbox.diploma.Dto.AllPostDto;
+import ru.skillbox.diploma.Dto.CalendarDto;
+import ru.skillbox.diploma.Dto.PostDto;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.*;
@@ -62,19 +62,19 @@ public class PostService {
                 isActive, status, time, pageable);
     }
 
-    public AllPostResponse searchPosts(byte isActive,
-                                       PostStatus status,
-                                       ZonedDateTime time,
-                                       String text,
-                                       Pageable pageable
+    public AllPostDto searchPosts(byte isActive,
+                                  PostStatus status,
+                                  ZonedDateTime time,
+                                  String text,
+                                  Pageable pageable
     ){
         Page<Post> postList =  postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqualAndTextContaining(
                 isActive, status, time, text, pageable);
 
-        List<PostResponse> postResponseList = new ArrayList<>();
-        postList.forEach(post ->  postResponseList.add(new PostResponse(post)));
+        List<PostDto> postDtoList = new ArrayList<>();
+        postList.forEach(post ->  postDtoList.add(new PostDto(post)));
 
-        return new AllPostResponse((int) postList.getTotalElements(), postResponseList);
+        return new AllPostDto((int) postList.getTotalElements(), postDtoList);
     }
 
     public int countActiveAndAcceptedPosts(){
@@ -86,7 +86,7 @@ public class PostService {
         );
     }
 
-    public AllPostResponse getActiveAndAcceptedPosts(int offset, int limit, String mode) {
+    public AllPostDto getActiveAndAcceptedPosts(int offset, int limit, String mode) {
 
         logger.trace("Request /api/post?offset=" + offset +
                 "&limit="+ limit  + "&mode=" + mode);
@@ -108,26 +108,26 @@ public class PostService {
                         + "totalElements: %s, totalPages: %s%n",
                 number, numberOfElements, size, totalElements, totalPages);
 
-        List<PostResponse> postResponseList = new ArrayList<>();
-        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
+        List<PostDto> postDtoList = new ArrayList<>();
+        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
 
         switch (mode) {
             case POPULAR:
                 logger.trace("posts sorted by getPostComments().size()");
-                postResponseList.stream()
-                        .sorted(Comparator.comparingInt(PostResponse::getCommentCount));
+                postDtoList.stream()
+                        .sorted(Comparator.comparingInt(PostDto::getCommentCount));
                 break;
             case BEST:
                 logger.trace("posts sorted by getVotes().size() where value = 1");
-                postResponseList.stream()
-                        .sorted(Comparator.comparing(PostResponse::getLikeCount));
+                postDtoList.stream()
+                        .sorted(Comparator.comparing(PostDto::getLikeCount));
                 break;
         }
 
-        return new AllPostResponse(totalElements, postResponseList);
+        return new AllPostDto(totalElements, postDtoList);
     }
 
-    public AllPostResponse getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){
+    public AllPostDto getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){
         Page<Post> postPage = postRepository.findAllByIsActiveAndStatusAndTimeBetween(
                 (byte) 1,
                 PostStatus.ACCEPTED,
@@ -136,9 +136,9 @@ public class PostService {
 
 //        Page<Post> postPage = postRepository.findPostsByDate(dateStart, dateFinish, PageRequest.of(offset, limit));
 
-        List<PostResponse> postResponseList = new ArrayList<>();
-        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
-        return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
+        List<PostDto> postDtoList = new ArrayList<>();
+        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
+        return new AllPostDto((int) postPage.getTotalElements(), postDtoList);
     }
 
     private Pageable definePagingAndSortingType(String mode, int offset, int limit) {
@@ -159,7 +159,7 @@ public class PostService {
         return pagingAndSorting;
     }
 
-    public AllPostResponse findPostsByTag(int offset, int limit, String tag) {
+    public AllPostDto findPostsByTag(int offset, int limit, String tag) {
 //        Post curPost = postRepository.findById(2).get();
 //        System.out.println(curPost.getTags());
 
@@ -171,12 +171,12 @@ public class PostService {
                     tag,
                     PageRequest.of(offset, limit));
 
-        List<PostResponse> postResponseList = new ArrayList<>();
-        postPage.forEach(post ->  postResponseList.add(new PostResponse(post)));
-        return new AllPostResponse((int) postPage.getTotalElements(), postResponseList);
+        List<PostDto> postDtoList = new ArrayList<>();
+        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
+        return new AllPostDto((int) postPage.getTotalElements(), postDtoList);
     }
 
-    public CalendarResponce findTotalPostsCount4EveryDay(String years) {
+    public CalendarDto findTotalPostsCount4EveryDay(String years) {
         List<Integer> yearList = new ArrayList<>();
         try{
             if (years.length() == 4 && Integer.parseInt(years) > 2005) {
@@ -215,7 +215,7 @@ public class PostService {
                                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), Collectors.counting()));
         };
 
-        return new CalendarResponce(yearList, postsMap);
+        return new CalendarDto(yearList, postsMap);
     }
 
     public int countByModerationStatus(PostStatus postStatus) {

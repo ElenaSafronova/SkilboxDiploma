@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.response;
+package ru.skillbox.diploma.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostResponse {
+public class PostDto {
     private static final int ANNOUNCE_LENGTH = 100;
 
     private int id;
@@ -26,7 +26,7 @@ public class PostResponse {
     private int viewCount;
 
 
-    public PostResponse(Post post) {
+    public PostDto(Post post) {
         this.id = post.getId();
         this.timestamp = Instant.from(post.getTime()).getEpochSecond();
         this.user = new UserResponse(post.getUser());
