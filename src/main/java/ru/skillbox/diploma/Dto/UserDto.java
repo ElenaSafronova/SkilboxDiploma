@@ -4,11 +4,11 @@ import lombok.Data;
 import ru.skillbox.diploma.model.User;
 
 @Data
-class UserResponse {
+public class UserDto {
     private int id;
     private String name;
 
-    public UserResponse(User user){
+    public UserDto(User user){
         id = user.getId();
         name = user.getName();
     }

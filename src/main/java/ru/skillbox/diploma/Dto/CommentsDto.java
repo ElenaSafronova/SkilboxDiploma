@@ -11,23 +11,23 @@ public class CommentsDto {
     private int id;
     private long timestamp;
     private String text;
-    private UserDto user;
+    private UserWithPhotoDto user;
 
     public CommentsDto(PostComment comment){
         this.id = comment.getId();
         this.timestamp = Instant.from(comment.getTime()).getEpochSecond();
         this.text = comment.getText();
-        this.user = new UserDto(comment.getUser());
+        this.user = new UserWithPhotoDto(comment.getUser());
     }
 }
 
 @Data
-class UserDto {
+class UserWithPhotoDto {
     private int id;
     private String name;
     private String photo;
 
-    UserDto(User user){
+    UserWithPhotoDto(User user){
         this.id = user.getId();
         this.name = user.getName();
         this.photo = user.getPhoto();

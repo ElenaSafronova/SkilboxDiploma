@@ -17,7 +17,7 @@ public class PostDto {
 
     private int id;
     private long timestamp;
-    private UserResponse user;
+    private UserWithPhotoDto user;
     private String title;
     private String announce;
     private int likeCount;
@@ -29,7 +29,7 @@ public class PostDto {
     public PostDto(Post post) {
         this.id = post.getId();
         this.timestamp = Instant.from(post.getTime()).getEpochSecond();
-        this.user = new UserResponse(post.getUser());
+        this.user = new UserWithPhotoDto(post.getUser());
         this.title = post.getTitle();
         this.announce = cutText(noHTMLString(post.getText()), ANNOUNCE_LENGTH);
         countLikesAndDislikes(post.getVotes());

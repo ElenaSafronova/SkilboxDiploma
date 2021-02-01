@@ -70,6 +70,7 @@ public class ApiAuthController {
     @GetMapping("/logout")
     public ResponseEntity<AuthenticationFailedDto> logOut(){
         logger.trace("/api/auth/logout");
+//      TODO: Метод разлогинивает пользователя: удаляет идентификатор его сессии из списка авторизованных. Всегда возвращает true, даже если идентификатор текущей сессии не найден в списке авторизованных.
         return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
     }
 }

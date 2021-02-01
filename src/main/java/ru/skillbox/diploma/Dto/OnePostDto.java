@@ -14,7 +14,7 @@ public class OnePostDto {
     private int id;
     private long timestamp;
     private int active;
-    private UserResponse user;
+    private UserWithPhotoDto user;
     private String title;
     private String text;
     private int likeCount;
@@ -27,7 +27,7 @@ public class OnePostDto {
         this.id = post.getId();
         this.timestamp = Instant.from(post.getTime()).getEpochSecond();
         this.active = post.getIsActive();
-        this.user = new UserResponse(post.getUser());
+        this.user = new UserWithPhotoDto(post.getUser());
         this.title = post.getTitle();
         this.text = post.getText();
         this.viewCount = post.getViewCount();
