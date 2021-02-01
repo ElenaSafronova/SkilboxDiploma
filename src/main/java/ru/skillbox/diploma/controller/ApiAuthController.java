@@ -1,8 +1,5 @@
 package ru.skillbox.diploma.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.skillbox.diploma.Dto.*;
 import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.Dto.CaptchaDto;
 import ru.skillbox.diploma.service.CaptchaService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.UserService;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +31,8 @@ public class ApiAuthController {
     private PostService postService;
 
     Logger logger = LoggerFactory.getLogger(ApiAuthController.class);
+
+    private Map<String, Integer> sessionMap = new ConcurrentHashMap<>();
 
     @GetMapping("/check")
     public ResponseEntity<String> checkAuthorization(Model model){
@@ -49,66 +50,27 @@ public class ApiAuthController {
     @ResponseBody
     @RequestMapping (value = "/login", method = RequestMethod.POST)
 //    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Authentication> create(@RequestBody UserData userData) {
+    public ResponseEntity<AuthenticationDto> create(@RequestBody UserDataDto userDataDto) {
         logger.trace("/api/auth/login");
-        User actualUser = userService.findUserByEmailAndPassword(userData.getE_mail(), userData.getPassword());
+        User actualUser = userService.findUserByEmailAndPassword(userDataDto.getE_mail(), userDataDto.getPassword());
         if (actualUser == null){
-            return new ResponseEntity<>(new Authentication(null), HttpStatus.OK);
+            return new ResponseEntity<>(new AuthenticationDto(null), HttpStatus.OK);
         }
-        UserDataResponce userDataResponce = new UserDataResponce(actualUser);
-        if (userDataResponce.getModerationCount() > 0){
+        UserDataAuthDto userDataAuthDto = new UserDataAuthDto(actualUser);
+        if (userDataAuthDto.getModerationCount() > 0){
             logger.trace("postService.countByModerationStatus(PostStatus.NEW)");
-            userDataResponce.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
+            userDataAuthDto.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
         }
         // TODO: Если пользователь авторизован, идентификатор его сессии должен запоминаться в
         //  Map<String, Integer> со значением, равным ID пользователя, которому принадлежит данная сессия.
 
-        return new ResponseEntity<>(new Authentication(userDataResponce), HttpStatus.OK);
+        return new ResponseEntity<>(new AuthenticationDto(userDataAuthDto), HttpStatus.OK);
     }
-}
 
-@NoArgsConstructor
-@Data
-class UserData{
-    private String e_mail;
-    private String password;
-}
-
-@Data
-class Authentication{
-    private boolean result;
-    private UserDataResponce user;
-
-    public Authentication(UserDataResponce userDataResponce) {
-        this.user = userDataResponce;
-        this.result = userDataResponce != null;
-    }
-}
-
-@AllArgsConstructor
-@Data
-class AuthenticationFailed{
-    private boolean result = false;
-}
-
-@Data
-class UserDataResponce{
-    private int id;
-    private String name;
-    private String photo;
-    private String e_mail;
-    private boolean moderation;
-    private int moderationCount;
-    private boolean settings;
-
-    public UserDataResponce(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.photo = user.getPhoto();
-        this.e_mail = user.getEmail();
-        this.moderation = user.getIsModerator() == 1;
-        this.moderationCount = moderation ? 1 : 0;
-        this.settings = moderation;
+    @GetMapping("/logout")
+    public ResponseEntity<AuthenticationFailedDto> logOut(){
+        logger.trace("/api/auth/logout");
+        return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
     }
 }
 

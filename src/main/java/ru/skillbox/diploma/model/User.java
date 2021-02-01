@@ -31,11 +31,11 @@ public class User {
     @NotNull(message = "regTime (time of registration) cannot be null")
     private ZonedDateTime regTime;
 
-//    @Column(unique = true)
     @NotBlank(message = "username cannot be null or whitespace")
     @Size(min=3, max=15)
     private String name;
 
+    @Column(unique = true)
     @Email(message = "Email should be valid")
     @NotBlank(message = "email cannot be null or whitespace")
     private String email;
