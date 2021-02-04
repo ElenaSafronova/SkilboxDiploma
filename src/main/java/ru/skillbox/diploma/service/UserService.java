@@ -1,9 +1,12 @@
 package ru.skillbox.diploma.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.Dto.RegistrationDto;
 import ru.skillbox.diploma.Dto.newUserDataDto;
+import ru.skillbox.diploma.controller.ApiAuthController;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.UserRepository;
 
@@ -13,6 +16,8 @@ import java.util.Map;
 
 @Service
 public class UserService {
+    Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository userRepository;
 
@@ -50,12 +55,13 @@ public class UserService {
 
     public RegistrationDto registerNewUser(newUserDataDto newUserDataDto) {
         if (findUserByEmail(newUserDataDto.getE_mail()) == null){
-            UserRepository.save(
+            User newUser = new User(
                     (byte) 0,
                     newUserDataDto.getName(),
                     newUserDataDto.getE_mail(),
-                    newUserDataDto.getPassword()
-            );
+                    newUserDataDto.getPassword());
+            userRepository.save(newUser);
+            logger.debug(newUser.toString());
             return new RegistrationDto(true, null);
         }
         Map<String, String> errors = new HashMap<>();

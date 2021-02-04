@@ -11,9 +11,6 @@ import java.time.ZonedDateTime;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    static void save(byte b, String name, String e_mail, String password) {
-    }
-
     User findById(int id);
 
     User findByName(String name);
