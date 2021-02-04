@@ -63,4 +63,16 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Vote> postVotesList;
 
+    public User(@NotNull(message = "isModerator cannot be null") byte isModerator,
+                @NotBlank(message = "username cannot be null or whitespace")
+                        @Size(min = 3, max = 15) String name,
+                @Email(message = "Email should be valid")
+                @NotBlank(message = "email cannot be null or whitespace") String email,
+                @NotBlank(message = "password cannot be null or whitespace") String password) {
+        this.isModerator = isModerator;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.setRegTime(ZonedDateTime.now());
+    }
 }

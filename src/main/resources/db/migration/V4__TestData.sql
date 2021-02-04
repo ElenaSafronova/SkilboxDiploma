@@ -4,10 +4,10 @@
 insert into users
     (id, is_moderator, reg_time, name, email, password, code, photo)
     values
-    (1, 1, '2019-1-01 17:55', 'Дмитрий Петров', 'petrov@mail.ru', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', NULL, NULL),
-    (2, 0, '2018-5-20 07:02', 'Евгений Кучерявый', 'kucher@mail.ru', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', '156k', '5e04c21a52a39.jpg'),
-    (3, 0, '2019-10-20 17:02', 'Евгения', 'evgenia@mail.ru', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', NULL, NULL),
-    (4, 0, '2019-12-17 00:00', 'Антон Иванов', 'anton@mail.ru', '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.', NULL, NULL);
+    (1, 1, '2019-1-01 17:55', 'Дмитрий Петров', 'petrov@mail.ru', '$2y$12$4dDb4txcNUTOtkQKsXh7z.3lOdtIQhg9h1ILUIc5gCSZrhSPykYUi', NULL, NULL),
+    (2, 0, '2018-5-20 07:02', 'Евгений Кучерявый', 'kucher@mail.ru', '$2y$12$SmQmThigpSW2nxNewW6J1.QH3uCFJmPu.UxTbOF1y2t73o8AMn3mK', '156k', '5e04c21a52a39.jpg'),
+    (3, 0, '2019-10-20 17:02', 'Евгения', 'evgenia@mail.ru', '$2y$12$SmQmThigpSW2nxNewW6J1.QH3uCFJmPu.UxTbOF1y2t73o8AMn3mK', NULL, NULL),
+    (4, 0, '2019-12-17 00:00', 'Антон Иванов', 'anton@mail.ru', '$2y$12$SmQmThigpSW2nxNewW6J1.QH3uCFJmPu.UxTbOF1y2t73o8AMn3mK', NULL, NULL);
 
 
 insert into posts

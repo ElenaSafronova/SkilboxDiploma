@@ -2,8 +2,14 @@ package ru.skillbox.diploma.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.skillbox.diploma.Dto.RegistrationDto;
+import ru.skillbox.diploma.Dto.newUserDataDto;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.UserRepository;
+
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -40,5 +46,23 @@ public class UserService {
 
     public User findById(int i) {
         return userRepository.findById(i);
+    }
+
+    public RegistrationDto registerNewUser(newUserDataDto newUserDataDto) {
+        if (findUserByEmail(newUserDataDto.getE_mail()) == null){
+            UserRepository.save(
+                    (byte) 0,
+                    newUserDataDto.getName(),
+                    newUserDataDto.getE_mail(),
+                    newUserDataDto.getPassword()
+            );
+            return new RegistrationDto(true, null);
+        }
+        Map<String, String> errors = new HashMap<>();
+        errors.put("email", "Этот e-mail уже зарегистрирован");
+        errors.put("name", "Имя указано неверно");
+        errors.put("password", "Пароль короче 6-ти символов");
+        errors.put("captcha", "Код с картинки введён неверно");
+        return new RegistrationDto(false, errors);
     }
 }

@@ -50,9 +50,14 @@ public class ApiAuthController {
     @ResponseBody
     @RequestMapping (value = "/login", method = RequestMethod.POST)
 //    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<AuthenticationDto> create(@RequestBody UserDataDto userDataDto) {
+    public ResponseEntity<AuthenticationDto> authUser(@RequestBody UserDataDto userDataDto) {
         logger.trace("/api/auth/login");
-        User actualUser = userService.findUserByEmailAndPassword(userDataDto.getE_mail(), userDataDto.getPassword());
+
+        User actualUser = userService
+                .findUserByEmailAndPassword(
+                        userDataDto.getE_mail(),
+                        userDataDto.getPassword());
+
         if (actualUser == null){
             return new ResponseEntity<>(new AuthenticationDto(null), HttpStatus.OK);
         }
@@ -65,6 +70,13 @@ public class ApiAuthController {
         //  Map<String, Integer> со значением, равным ID пользователя, которому принадлежит данная сессия.
 
         return new ResponseEntity<>(new AuthenticationDto(userDataAuthDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<RegistrationDto> registerUser(@RequestBody newUserDataDto newUserDataDto){
+        logger.trace("/api/auth/register");
+        RegistrationDto registrationDto = userService.registerNewUser(newUserDataDto);
+        return new ResponseEntity(registrationDto, HttpStatus.OK);
     }
 
     @GetMapping("/logout")
