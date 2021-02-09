@@ -38,8 +38,8 @@ public class TagService {
             logger.trace("?query=" + tagQuery);
             allTags = tagRepository.findByNameContaining(tagQuery);
         }
-        logger.trace("PostsByTags count: " + ((Collection<Tag>) allTags).size() +
-                "\t postsTotalCount = " + postsTotalCount);
+//        logger.trace("PostsByTags count: " + ((Collection<Tag>) allTags).size() +
+//                "\t postsTotalCount = " + postsTotalCount);
 
         return generateTagResponses(allTags, postsTotalCount);
     }
@@ -61,8 +61,8 @@ public class TagService {
             }
             double weight = (double) postsCountByTag / postsTotalCount;
 
-            logger.info("curTag " + curTagName
-                    + " postsCountByTag " + postsCountByTag + " weight " + weight);
+//            logger.info("curTag " + curTagName
+//                    + " postsCountByTag " + postsCountByTag + " weight " + weight);
             tagResponses.add(new TagDto(curTagName, weight));
         }
         calculateWeights(tagResponses, postsTotalCount, maxFrequency, tagPopular);
@@ -72,10 +72,10 @@ public class TagService {
     private void calculateWeights(List<TagDto> tagResponses, int postsTotalCount, int maxFrequency, String tagPopular) {
         double weightMax = (double) maxFrequency / postsTotalCount;
         double k = 1 / weightMax;
-        logger.trace("weightMax = " + weightMax + "\tk = " + k);
+//        logger.trace("weightMax = " + weightMax + "\tk = " + k);
         for (TagDto el : tagResponses) {
             el.setWeight(el.getWeight().doubleValue() * k);
-            logger.info(el.getName() + " " + el.getWeight());
+//            logger.info(el.getName() + " " + el.getWeight());
         }
     }
 

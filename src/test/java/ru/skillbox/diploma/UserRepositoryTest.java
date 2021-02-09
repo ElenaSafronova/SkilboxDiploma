@@ -1,5 +1,6 @@
 package ru.skillbox.diploma;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -36,5 +37,13 @@ public class UserRepositoryTest{
         User existsUser = entityManager.find(User.class, newUser.getId());
 
         assertThat(existsUser.getEmail()).isEqualTo(user.getEmail());
+    }
+
+    @Test
+    public void testFindByEmail(){
+        String email = "Bla@mail.ru";
+        User curUser = userRepository.findByEmail(email);
+        assertThat(curUser).isNotNull();
+
     }
 }

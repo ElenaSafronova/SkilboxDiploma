@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 @Data
 public class Vote {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @NotNull(message = "userId cannot be null")

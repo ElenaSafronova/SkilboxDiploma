@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.Dto.*;
+import ru.skillbox.diploma.exception.EmailExistsException;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.service.CaptchaService;
 import ru.skillbox.diploma.service.PostService;
@@ -15,8 +16,6 @@ import ru.skillbox.diploma.service.UserService;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,7 +31,7 @@ public class ApiAuthController {
 
     Logger logger = LoggerFactory.getLogger(ApiAuthController.class);
 
-    private Map<String, Integer> sessionMap = new ConcurrentHashMap<>();
+//    private Map<String, Integer> sessionMap = new ConcurrentHashMap<>();
 
     @GetMapping("/check")
     public ResponseEntity<String> checkAuthorization(Model model){
@@ -47,16 +46,29 @@ public class ApiAuthController {
         return new ResponseEntity<>(captchaDto, HttpStatus.OK);
     }
 
-    @ResponseBody
-    @RequestMapping (value = "/login", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<AuthenticationDto> authUser(@RequestBody UserDataDto userDataDto) {
-        logger.trace("/api/auth/login");
+    @GetMapping("/login")
+    public void login(){
+        logger.trace("GET /api/auth/login");
+        logger.trace("login?error");
+    }
 
-        User actualUser = userService
-                .findUserByEmailAndPassword(
-                        userDataDto.getE_mail(),
-                        userDataDto.getPassword());
+    @ResponseBody
+    @PostMapping("/login")
+//    @RequestMapping (value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<AuthenticationDto> authUser(@RequestBody LoginDto loginDto) {
+        logger.trace("POST /api/auth/login");
+        logger.trace("loginDto = " + loginDto.toString());
+
+
+        if (loginDto == null){
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        }
+
+        User actualUser = userService.findUserByEmailAndPassword(
+                        loginDto.getE_mail(),
+                        loginDto.getPassword()
+        );
 
         if (actualUser == null){
             return new ResponseEntity<>(new AuthenticationDto(null), HttpStatus.OK);
@@ -73,7 +85,7 @@ public class ApiAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationDto> registerUser(@RequestBody newUserDataDto newUserDataDto){
+    public ResponseEntity<RegistrationDto> registerUser(@RequestBody newUserDataDto newUserDataDto) throws EmailExistsException {
         logger.trace("/api/auth/register");
         RegistrationDto registrationDto = userService.registerNewUser(newUserDataDto);
         return new ResponseEntity(registrationDto, HttpStatus.OK);
