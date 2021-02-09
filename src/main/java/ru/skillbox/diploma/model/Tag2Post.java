@@ -3,10 +3,15 @@ package ru.skillbox.diploma.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+<<<<<<< HEAD
 import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+=======
+
+import javax.persistence.*;
+>>>>>>> dev
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -16,7 +21,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class Tag2Post {
     @Id
+<<<<<<< HEAD
     @GeneratedValue(strategy = GenerationType.AUTO)
+=======
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+>>>>>>> dev
     private int id;
 
     @NotNull(message = "postId cannot be null")

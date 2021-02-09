@@ -15,7 +15,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class GlobalSetting {
     @Id
+<<<<<<< HEAD
     @GeneratedValue(strategy = GenerationType.AUTO)
+=======
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+>>>>>>> dev
     private int id;
 
     @NotNull(message = "global_settings code can not be null")
