@@ -3,11 +3,11 @@ package ru.skillbox.diploma.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "post_votes") // лайки и дизлайки постов
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 public class Vote {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @NotNull(message = "userId cannot be null")
@@ -36,7 +36,7 @@ public class Vote {
 
     @Column(updatable = false)
     @NotNull(message = "post vote time cannot be null")
-    private LocalDateTime time;
+    private ZonedDateTime time;
 
     @NotNull(message = "value cannot be null")
     private byte value;
