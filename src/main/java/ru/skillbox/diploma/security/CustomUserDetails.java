@@ -21,7 +21,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList("VALID_USER");
+        return null;
+//        return AuthorityUtils.createAuthorityList("VALID_USER");
     }
 
     @Override
@@ -52,5 +53,9 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getUserNameAndPassword() {
+        return user.getName() + " " + user.getPassword();
     }
 }

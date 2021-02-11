@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     @Override
-    @Transactional
+//    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         logger.info("loadUserByUsername class");
         logger.info("String email is " + email);
@@ -45,7 +45,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 curUser.getName(),
                 curUser.getPassword(),
-                true, true, true,
+                curUser.getIsModerator() == 1,
+                true, true,
                 true, new ArrayList<>());
     }
 }

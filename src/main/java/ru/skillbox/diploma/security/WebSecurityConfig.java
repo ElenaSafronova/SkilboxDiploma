@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 @Configuration
@@ -27,9 +28,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -44,17 +42,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .passwordEncoder(bCryptPasswordEncoder);
 //    }
 //
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web
-                .ignoring()
-                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
-    }
+//    @Override
+//    public void configure(WebSecurity web) throws Exception {
+//        web
+//                .ignoring()
+//                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
+//    }
 
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         auth.jdbcAuthentication()
             .dataSource(dataSource)
             .passwordEncoder(passwordEncoder())
@@ -64,23 +62,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http
+                .csrf().disable()
                 .authorizeRequests()
 //                .antMatchers("api/post/moderation").authenticated()
-                .antMatchers("/").permitAll()
-//                .anyRequest().authenticated()
+                .antMatchers("/api/post/moderation").authenticated()
+                .anyRequest().permitAll()
                 .and()
                     .formLogin()
-                        .loginPage("/api/auth/login").permitAll()
-//                        .failureUrl("/login?error=false")
+//                        .loginPage("/api/auth/login")
+//                        .failureUrl("/login?error=true")
                         .usernameParameter("email")
                         .passwordParameter("password")
+                    .permitAll()
                 .and()
-                    .logout().permitAll()
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/auth/logout"))
+                    .logout()
+//                        .logoutUrl("/api/auth/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
-                        .logoutSuccessUrl("/api/auth/login");
+//                        .logoutSuccessUrl("/api/auth/login")
+                    .permitAll();
     }
 }

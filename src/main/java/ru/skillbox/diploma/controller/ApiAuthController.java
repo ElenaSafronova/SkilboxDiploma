@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.Dto.*;
@@ -31,8 +32,6 @@ public class ApiAuthController {
 
     Logger logger = LoggerFactory.getLogger(ApiAuthController.class);
 
-//    private Map<String, Integer> sessionMap = new ConcurrentHashMap<>();
-
     @GetMapping("/check")
     public ResponseEntity<String> checkAuthorization(Model model){
         logger.trace("Request /api/auth/check");
@@ -54,23 +53,27 @@ public class ApiAuthController {
 
     @ResponseBody
     @PostMapping("/login")
-//    @RequestMapping (value = "/login", method = {RequestMethod.POST, RequestMethod.GET})
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<AuthenticationDto> authUser(@RequestBody LoginDto loginDto) {
         logger.trace("POST /api/auth/login");
         logger.trace("loginDto = " + loginDto.toString());
-
 
         if (loginDto == null){
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
 
-        User actualUser = userService.findUserByEmailAndPassword(
-                        loginDto.getE_mail(),
-                        loginDto.getPassword()
-        );
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String curEmail = loginDto.getE_mail();
+        String curPass = loginDto.getPassword();
+
+        User actualUser = userService.findUserByEmail(curEmail);
 
         if (actualUser == null){
+            logger.info("user " + curEmail + " not found");
+            return new ResponseEntity<>(new AuthenticationDto(null), HttpStatus.OK);
+        }
+
+        if (!encoder.matches(curPass, actualUser.getPassword())){
+            logger.info(curEmail + " password is wrong. " + curPass);
             return new ResponseEntity<>(new AuthenticationDto(null), HttpStatus.OK);
         }
         UserDataAuthDto userDataAuthDto = new UserDataAuthDto(actualUser);
@@ -78,8 +81,6 @@ public class ApiAuthController {
             logger.trace("postService.countByModerationStatus(PostStatus.NEW)");
             userDataAuthDto.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
         }
-        // TODO: Если пользователь авторизован, идентификатор его сессии должен запоминаться в
-        //  Map<String, Integer> со значением, равным ID пользователя, которому принадлежит данная сессия.
 
         return new ResponseEntity<>(new AuthenticationDto(userDataAuthDto), HttpStatus.OK);
     }
@@ -94,7 +95,6 @@ public class ApiAuthController {
     @GetMapping("/logout")
     public ResponseEntity<AuthenticationFailedDto> logOut(){
         logger.trace("/api/auth/logout");
-//      TODO: Метод разлогинивает пользователя: удаляет идентификатор его сессии из списка авторизованных. Всегда возвращает true, даже если идентификатор текущей сессии не найден в списке авторизованных.
         return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
     }
 }
