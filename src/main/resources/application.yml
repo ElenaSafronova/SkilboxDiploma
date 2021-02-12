@@ -1,0 +1,35 @@
+config-properties:
+  propertiesMap:
+    COPYRIGHT: Дмитрий Сергеев
+    COPYRIGHT_FROM: 2005
+    EMAIL: mail@mail.ru
+    PHONE: +7 903 666-44-55
+    SUBTITLE: Рассказы разработчиков
+    TITLE: DevPub
+logging:
+  level:
+    root: INFO
+    ru:
+      skillbox: TRACE
+server:
+  port: 8080
+spring:
+  datasource:
+    password: testtest
+    url: jdbc:mysql://localhost:3306/weblog?useUnicode=true&serverTimezone=UTC
+    username: root
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+  security:
+    user:
+      name: root
+      password: testtest
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/

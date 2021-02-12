@@ -12,6 +12,7 @@ import ru.skillbox.diploma.Dto.StatisticsDto;
 import ru.skillbox.diploma.Dto.AllTagsDto;
 import ru.skillbox.diploma.Dto.CalendarDto;
 import ru.skillbox.diploma.service.GlobalSettingsService;
+import ru.skillbox.diploma.service.InitPropService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.service.TagService;
 
@@ -30,26 +31,14 @@ public class ApiGeneralController {
     @Autowired
     private PostService postService;
 
-    final String TITLE = "DevPub";
-    final String SUBTITLE = "Рассказы разработчиков";
-    final String PHONE = "+7 903 666-44-55";
-    final String EMAIL = "mail@mail.ru";
-    final String COPYRIGHT = "Дмитрий Сергеев";
-    final String COPYRIGHT_FROM = "2005";
+    @Autowired
+    InitPropService initPropService;
 
     @GetMapping(value = "/api/init", produces = "application/json")
     public Map<String, String> getInitData(){
         logger.trace("Request /api/init");
 
-        Map<String, String> data = new HashMap<>();
-        data.put("title", TITLE);
-        data.put("subtitle", SUBTITLE);
-        data.put("phone", PHONE);
-        data.put("email", EMAIL);
-        data.put("copyright", COPYRIGHT);
-        data.put("copyrightFrom", COPYRIGHT_FROM);
-
-        return data;
+        return initPropService.getInitProp();
     }
 
 
