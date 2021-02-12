@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.Dto.RegistrationDto;
-import ru.skillbox.diploma.Dto.newUserDataDto;
+import ru.skillbox.diploma.dto.RegistrationDto;
+import ru.skillbox.diploma.dto.NewUserDataDto;
 import ru.skillbox.diploma.exception.EmailExistsException;
+import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.UserRepository;
 
@@ -20,6 +21,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CaptchaService captchaService;
 
     private User save(User user){
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -47,24 +51,33 @@ public class UserService {
         return userRepository.findById(i);
     }
 
-    public RegistrationDto registerNewUser(newUserDataDto newUserDataDto) throws EmailExistsException {
+    public RegistrationDto registerNewUser(NewUserDataDto newUserDataDto) throws EmailExistsException {
         Map<String, String> errors = new HashMap<>();
 
-        if (findUserByEmail(newUserDataDto.getE_mail()) == null){
+        if (findUserByEmail(newUserDataDto.getEmail()) == null){
+            if (!newUserDataDto.getName().matches("^[A-Za-zА-Яа-я]\\w{2,25}$")){
+                errors.put("name", "Имя указано неверно");
+            }
+            if(newUserDataDto.getPassword().length() < 6){
+                errors.put("password", "Пароль короче 6-ти символов");
+            }
+            Captcha captcha = captchaService.findBySecretCode(newUserDataDto.getCaptchaSecret());
+            System.out.println("--------------- captcha " + captcha.toString());
+            if (captcha == null){
+                logger.debug("captcha Код не найден в БД");
+            }
+            if (!captcha.getCode().equals(newUserDataDto.getCaptcha())){
+                errors.put("captcha", "Код с картинки введён неверно");
+            }
 
-            //TODO: errors checked
-
-            // errors.put("name", "Имя указано неверно");
-//        errors.put("password", "Пароль короче 6-ти символов");
-//        errors.put("captcha", "Код с картинки введён неверно");
-//            if (errors.size() > 0){
-//                return new RegistrationDto(false, errors);
-//            }
+            if (errors.size() > 0){
+                return new RegistrationDto(false, errors);
+            }
 
             User newUser = new User(
                     (byte) 0,
                     newUserDataDto.getName(),
-                    newUserDataDto.getE_mail(),
+                    newUserDataDto.getEmail(),
                     new BCryptPasswordEncoder().encode(newUserDataDto.getPassword())
             );
             userRepository.save(newUser);
@@ -75,6 +88,6 @@ public class UserService {
 
         errors.put("email", "Этот e-mail уже зарегистрирован");
         return new RegistrationDto(false, errors);
-//        throw new EmailExistsException(newUserDataDto.getE_mail());
+//        throw new EmailExistsException(newUserDataDto.getEmail());
     }
 }

@@ -1,40 +1,47 @@
-package ru.skillbox.diploma.Dto;
+package ru.skillbox.diploma.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.model.PostComment;
 import ru.skillbox.diploma.model.Vote;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PostDto {
-    private static final int ANNOUNCE_LENGTH = 100;
-
+public class OnePostDto {
     private int id;
     private long timestamp;
+    private int active;
     private UserWithPhotoDto user;
     private String title;
-    private String announce;
+    private String text;
     private int likeCount;
     private int dislikeCount;
-    private int commentCount;
     private int viewCount;
+    private List<CommentsDto> comments;
+    private List<String> tags = new ArrayList<>();
 
-
-    public PostDto(Post post) {
+    public OnePostDto(Post post){
         this.id = post.getId();
         this.timestamp = Instant.from(post.getTime()).getEpochSecond();
+        this.active = post.getIsActive();
         this.user = new UserWithPhotoDto(post.getUser());
         this.title = post.getTitle();
-        this.announce = cutText(noHTMLString(post.getText()), ANNOUNCE_LENGTH);
-        countLikesAndDislikes(post.getVotes());
-        this.commentCount = post.getPostComments().size();
+        this.text = post.getText();
         this.viewCount = post.getViewCount();
+        this.comments = defineComments(post.getPostComments());
+        System.out.println(this.toString());
+        post.getTag2Posts().forEach(tag -> {
+            this.tags.add(tag.getTag().getName());
+        });
+    }
+
+    private List<CommentsDto> defineComments(List<PostComment> comments) {
+        List<CommentsDto> commentsRespons = new ArrayList<>();
+        comments.forEach(com -> commentsRespons.add(new CommentsDto(com)));
+        return commentsRespons;
     }
 
     private void countLikesAndDislikes(List<Vote> votes) {
@@ -49,19 +56,5 @@ public class PostDto {
         }
         this.likeCount = likes;
         this.dislikeCount = dislikes;
-    }
-
-    private String cutText(String text, int limit) {
-        if (text.length() > limit){
-            int newLimit = text.indexOf(' ', limit);
-            return newLimit > limit
-                    ? text.substring(0, newLimit) + "..."
-                    : text.substring(0, limit);
-        }
-        else return text;
-    }
-
-    public static String noHTMLString(String html) {
-        return html.replaceAll("\\<.*?>","");
     }
 }

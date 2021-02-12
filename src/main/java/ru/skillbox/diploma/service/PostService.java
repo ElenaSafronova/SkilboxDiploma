@@ -9,13 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.skillbox.diploma.Dto.StatisticsDto;
+import ru.skillbox.diploma.dto.StatisticsDto;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.PostRepository;
-import ru.skillbox.diploma.Dto.AllPostDto;
-import ru.skillbox.diploma.Dto.CalendarDto;
-import ru.skillbox.diploma.Dto.PostDto;
+import ru.skillbox.diploma.dto.AllPostDto;
+import ru.skillbox.diploma.dto.CalendarDto;
+import ru.skillbox.diploma.dto.PostDto;
 import ru.skillbox.diploma.repository.VoteRepository;
 import ru.skillbox.diploma.value.GlobalSettingCode;
 import ru.skillbox.diploma.value.GlobalSettingValue;
@@ -146,7 +146,7 @@ public class PostService {
                 (byte) 1,
                 PostStatus.ACCEPTED,
                 dateStart, dateFinish,
-                PageRequest.of(offset, limit));
+                PageRequest.of(offset/10, limit));
 
 //        Page<Post> postPage = postRepository.findPostsByDate(dateStart, dateFinish, PageRequest.of(offset, limit));
 
@@ -157,6 +157,7 @@ public class PostService {
 
     private Pageable definePagingAndSortingType(String mode, int offset, int limit) {
         Pageable pagingAndSorting;
+        offset = offset / 10;
         switch (mode) {
             case RECENT:
                 logger.trace("posts Sort.by(\"time\").descending()");
@@ -183,7 +184,7 @@ public class PostService {
                     PostStatus.ACCEPTED,
                     ZonedDateTime.now(),
                     tag,
-                    PageRequest.of(offset, limit));
+                    PageRequest.of(offset/10, limit));
 
         List<PostDto> postDtoList = new ArrayList<>();
         postPage.forEach(post ->  postDtoList.add(new PostDto(post)));

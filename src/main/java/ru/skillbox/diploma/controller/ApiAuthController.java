@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.skillbox.diploma.Dto.*;
+import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.exception.EmailExistsException;
 import ru.skillbox.diploma.service.AuthService;
 import ru.skillbox.diploma.service.CaptchaService;
@@ -63,7 +63,7 @@ public class ApiAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationDto> registerUser(@RequestBody newUserDataDto newUserDataDto) throws EmailExistsException {
+    public ResponseEntity<RegistrationDto> registerUser(@RequestBody NewUserDataDto newUserDataDto) throws EmailExistsException {
         logger.trace("/api/auth/register");
         RegistrationDto registrationDto = userService.registerNewUser(newUserDataDto);
         return new ResponseEntity(registrationDto, HttpStatus.OK);

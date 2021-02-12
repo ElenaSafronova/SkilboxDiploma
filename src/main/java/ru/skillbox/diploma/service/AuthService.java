@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.Dto.LoginDto;
-import ru.skillbox.diploma.Dto.UserDataAuthDto;
+import ru.skillbox.diploma.dto.LoginDto;
+import ru.skillbox.diploma.dto.UserDataAuthDto;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.value.PostStatus;
 
@@ -26,7 +26,7 @@ public class AuthService {
         }
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String curEmail = loginDto.getE_mail();
+        String curEmail = loginDto.getEmail();
         String curPass = loginDto.getPassword();
 
         User actualUser = userService.findUserByEmail(curEmail);

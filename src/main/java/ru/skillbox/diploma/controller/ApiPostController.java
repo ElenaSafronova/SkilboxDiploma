@@ -7,8 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skillbox.diploma.Dto.AllPostDto;
-import ru.skillbox.diploma.Dto.OnePostDto;
+import ru.skillbox.diploma.dto.AllPostDto;
+import ru.skillbox.diploma.dto.OnePostDto;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.value.PostStatus;
 
@@ -31,7 +31,7 @@ public class ApiPostController {
                                                   @RequestParam(required = false, defaultValue = "10") int limit,
                                                   @RequestParam String mode){
         logger.trace("/api/post");
-        AllPostDto postResponse = postService.getActiveAndAcceptedPosts(offset/10, limit, mode);
+        AllPostDto postResponse = postService.getActiveAndAcceptedPosts(offset, limit, mode);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -59,7 +59,7 @@ public class ApiPostController {
         logger.trace("Request /api/post/byDate?offset=" + offset +
                 "&limit="+ limit  + "&dateStart=" + dateStart + "&dateFinish=" + dateFinish);
 
-        AllPostDto postResponse = postService.getPostsByDate(offset/10, limit, dateStart, dateFinish);
+        AllPostDto postResponse = postService.getPostsByDate(offset, limit, dateStart, dateFinish);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -68,7 +68,7 @@ public class ApiPostController {
                                                     @RequestParam(required = false, defaultValue = "10") int limit,
                                                     @RequestParam String tag){
         logger.trace("/api/post/byTag?tag=" + tag);
-        AllPostDto postResponse = postService.findPostsByTag(offset/10, limit, tag);
+        AllPostDto postResponse = postService.findPostsByTag(offset, limit, tag);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

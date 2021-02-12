@@ -1,4 +1,4 @@
-package ru.skillbox.diploma.Dto;
+package ru.skillbox.diploma.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

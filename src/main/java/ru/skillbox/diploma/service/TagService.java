@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
-import ru.skillbox.diploma.Dto.TagDto;
+import ru.skillbox.diploma.dto.TagDto;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.ZonedDateTime;
