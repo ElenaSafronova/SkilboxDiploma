@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +25,8 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private DataSource dataSource;
+//    @Autowired
+//    private DataSource dataSource;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -52,11 +54,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        auth.jdbcAuthentication()
-            .dataSource(dataSource)
-            .passwordEncoder(passwordEncoder())
-            .usersByUsernameQuery("select email, password, is_moderator from users where email = ?");
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+//        auth.jdbcAuthentication()
+//            .dataSource(dataSource)
+//            .passwordEncoder(passwordEncoder())
+//            .usersByUsernameQuery("select email, password, is_moderator from users where email = ?");
     }
 
 
@@ -65,23 +67,34 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-//                .antMatchers("api/post/moderation").authenticated()
                 .antMatchers("/api/post/moderation").authenticated()
                 .anyRequest().permitAll()
+                .and().exceptionHandling().accessDeniedPage("/403")
                 .and()
                     .formLogin()
 //                        .loginPage("/api/auth/login")
-//                        .failureUrl("/login?error=true")
                         .usernameParameter("email")
                         .passwordParameter("password")
                     .permitAll()
                 .and()
                     .logout()
 //                        .logoutUrl("/api/auth/logout")
-                        .invalidateHttpSession(true)
+                        .logoutSuccessUrl("/")
+//                        .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
-//                        .logoutSuccessUrl("/api/auth/login")
-                    .permitAll();
+                    .permitAll()
+                .and()
+                .sessionManagement()
+                .invalidSessionUrl("/")
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry());
+    }
+
+    // Стандартная Spring имплементация SessionRegistry
+    @Bean(name = "sessionRegistry")
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 }

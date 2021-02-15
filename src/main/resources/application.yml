@@ -27,9 +27,17 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
   security:
-    user:
-      name: root
-      password: testtest
+    basic:
+      enabled: true
+    sessions: stateless
+#    user:
+#      name: root
+#      password: testtest
   thymeleaf:
     cache: false
     prefix: file:src/main/resources/templates/
+
+    server:
+      servlet:
+        session:
+          timeout: 15m
