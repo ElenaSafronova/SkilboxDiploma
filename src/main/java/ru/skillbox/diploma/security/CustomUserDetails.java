@@ -1,5 +1,9 @@
 package ru.skillbox.diploma.security;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,31 +12,37 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.skillbox.diploma.model.User;
 
 import java.util.Collection;
+import java.util.List;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
     Logger logger = LoggerFactory.getLogger(CustomUserDetails.class);
 
-    private User user;
-
-    public CustomUserDetails(User user) {
-        this.user = user;
-        logger.debug("CustomUserDetails: " + user);
-    }
+    private List<GrantedAuthority> authorities;
+    private String username;
+    private String password;
+    private boolean isAccountNonExpired;
+    private boolean isAccountNonLocked;
+    private boolean isCredentialsNonExpired;
+    private boolean isEnabled;
+    private boolean isModerator;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-//        return AuthorityUtils.createAuthorityList("VALID_USER");
+//        return null;
+        return AuthorityUtils.createAuthorityList("VALID_USER");
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return username;
     }
 
     @Override
@@ -56,6 +66,10 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getUserNameAndPassword() {
-        return user.getName() + " " + user.getPassword();
+        return username + " " + password;
+    }
+
+    public boolean isModerator() {
+        return isModerator;
     }
 }

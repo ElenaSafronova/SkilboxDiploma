@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DefaultController {
     Logger logger = LoggerFactory.getLogger(DefaultController.class);
 
-    @RequestMapping("/")
+    @RequestMapping(value = {"/", "/posts/recent"})
     public String index(Model model){
         logger.trace("Default method accessed");
         return "index";
