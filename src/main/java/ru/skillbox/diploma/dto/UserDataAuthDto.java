@@ -6,9 +6,7 @@ import ru.skillbox.diploma.model.User;
 
 @Data
 public
-class UserDataAuthDto {
-    private int id;
-    private String name;
+class UserDataAuthDto extends UserDto {
     private String photo;
     @JsonProperty("e_mail")
     private String email;
@@ -17,9 +15,14 @@ class UserDataAuthDto {
     private boolean settings;
 
     public UserDataAuthDto(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.photo = user.getPhoto();
+        super(user);
+        String curPhoto = user.getPhoto();
+        if (curPhoto == null || curPhoto.isEmpty() || curPhoto.isBlank()){
+            this.photo = curPhoto;
+        }
+        else{
+            this.photo = "/img/userPhoto/" + user.getId() + "/" + curPhoto;
+        }
         this.email = user.getEmail();
         this.moderation = user.getIsModerator() == 1;
         this.moderationCount = moderation ? 1 : 0;

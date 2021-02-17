@@ -3,24 +3,24 @@ package ru.skillbox.diploma.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import ru.skillbox.diploma.dto.StatisticsDto;
-import ru.skillbox.diploma.dto.AllTagsDto;
-import ru.skillbox.diploma.dto.CalendarDto;
-import ru.skillbox.diploma.service.GlobalSettingsService;
-import ru.skillbox.diploma.service.InitPropService;
-import ru.skillbox.diploma.service.PostService;
-import ru.skillbox.diploma.service.TagService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.support.ServletContextResource;
+import ru.skillbox.diploma.dto.*;
+import ru.skillbox.diploma.service.*;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @RestController
 public class ApiGeneralController {
-    Logger logger = LoggerFactory.getLogger(ApiGeneralController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiGeneralController.class);
 
     @Autowired
     private GlobalSettingsService globalSettingsService;
@@ -32,11 +32,15 @@ public class ApiGeneralController {
     private PostService postService;
 
     @Autowired
-    InitPropService initPropService;
+    private InitPropService initPropService;
+
+    @Autowired
+    private GeneralService generalService;
+
 
     @GetMapping(value = "/api/init", produces = "application/json")
     public Map<String, String> getInitData(){
-        logger.trace("Request /api/init");
+        LOGGER.trace("Request /api/init");
 
         return initPropService.getInitProp();
     }
@@ -44,30 +48,73 @@ public class ApiGeneralController {
 
     @GetMapping("/api/settings")
     public Map<String, Boolean> getGlobalSettings(){
-        logger.trace("Request /api/globalSettings");
+        LOGGER.trace("Request /api/globalSettings");
         return globalSettingsService.getSettings();
     }
 
     @GetMapping("/api/tag")
     public AllTagsDto getTags(@RequestParam(required = false) String query) {
-        logger.trace("Request /api/tag");
+        LOGGER.trace("Request /api/tag");
 
         return new AllTagsDto(tagService.findTagsWithWeight(query == null ? "" : query));
     }
 
     @GetMapping("/api/calendar")
     public CalendarDto getPosts4Calendar(@RequestParam(required = false) String years) {
-        logger.trace("Request /api/calendar");
+        LOGGER.trace("Request /api/calendar");
         return postService.findTotalPostsCount4EveryDay(years);
     }
 
     @GetMapping("/api/statistics/all")
     public ResponseEntity<StatisticsDto> getStatisticsAll() {
-        logger.trace("Request /api/statistics/all");
+        LOGGER.trace("Request /api/statistics/all");
         StatisticsDto response = postService.getStatisticsAll();
         if (response == null){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping(value = "/api/profile/my", consumes = "multipart/form-data")
+    public ResponseEntity<RegistrationDto> changePhoto(@ModelAttribute LoginProfileDto loginProfileDto){
+        RegistrationDto registrationDto = generalService.changeProfileWithPhoto(
+                 loginProfileDto.getName(),
+                 loginProfileDto.getEmail(),
+                 loginProfileDto.getPassword(),
+                 loginProfileDto.getPhoto()
+         );
+         return new ResponseEntity<>(registrationDto, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RegistrationDto> changeProfile(@RequestBody LoginProfileDto loginProfileDto){
+        RegistrationDto registrationDto =  generalService.changeProfile(
+                loginProfileDto.getName(),
+                loginProfileDto.getEmail(),
+                loginProfileDto.getPassword()
+        );
+        return new ResponseEntity<>(registrationDto, HttpStatus.OK);
+    }
+
+    @RequestMapping("/img/userPhoto")
+    @ResponseBody
+    public ResponseEntity<Resource> getImageAsResource(HttpServletRequest request) {
+        ServletContext servletContext = request.getServletContext();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "multipart/form-data");
+        Resource resource =
+                new ServletContextResource(servletContext, "");
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
+
+//    @RequestMapping(value = "user/userPhoto/{userId}", method = RequestMethod.GET)
+//    @ResponseBody
+//    public ResponseEntity<InputStreamResource> downloadUserAvatarImage(@PathVariable int userId) {
+//        String avatar = generalService.findUserAccountAvatarById(userId);
+//
+//        return ResponseEntity.ok()
+//                .contentLength(avatar.length())
+//                .contentType(MediaType.parseMediaType(avatar.getContentType()))
+//                .body(new InputStreamResource(avatar.getInputStream()));
+//    }
 }

@@ -76,7 +76,7 @@ public class ApiAuthController {
     @PostMapping("/register")
     public ResponseEntity<RegistrationDto> registerUser(@RequestBody NewUserDataDto newUserDataDto) throws EmailExistsException {
         logger.trace("/api/auth/register");
-        RegistrationDto registrationDto = userService.registerNewUser(newUserDataDto);
+        RegistrationDto registrationDto = authService.registerNewUser(newUserDataDto);
         return new ResponseEntity(registrationDto, HttpStatus.OK);
     }
 

@@ -13,6 +13,8 @@ logging:
       skillbox: TRACE
 server:
   port: 8080
+
+
 spring:
   datasource:
     password: testtest
@@ -26,6 +28,16 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
+  http:
+    multipart:
+        enabled: true
+        file-size-threshold: 200MB
+        max-file-size: 500MB
+        max-request-size: 500MB
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   security:
     basic:
       enabled: true
