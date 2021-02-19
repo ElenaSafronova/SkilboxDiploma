@@ -28,6 +28,11 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                               ZonedDateTime time
     );
 
+    List<Post> findPostListByUserAndIsActiveAndStatusAndTimeLessThanEqual(User user,
+                                                                          byte isActive,
+                                                                          PostStatus accepted,
+                                                                          ZonedDateTime now);
+
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,
                                                               ZonedDateTime time,
@@ -64,6 +69,9 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                      PostStatus status,
                                                      ZonedDateTime time
     );
+
+    int countByUserAndIsActiveAndStatusAndTimeLessThanEqual(User user, byte isActive,
+                                                            PostStatus accepted, ZonedDateTime now);
 
     @Modifying
     @Query("UPDATE Post p SET p.viewCount = ?2 WHERE p.id = ?1")
@@ -115,6 +123,7 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                     "    p.view_count as viewCount FROM posts p WHERE p.is_active = 1 AND p.moderation_status = 'ACCEPTED'",
             nativeQuery = true)
     Map<String, String> findAllPosts();
+
 
 
 

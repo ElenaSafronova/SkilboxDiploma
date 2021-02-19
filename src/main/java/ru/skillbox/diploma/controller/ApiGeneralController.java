@@ -75,6 +75,13 @@ public class ApiGeneralController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/api/statistics/my")
+    public ResponseEntity<StatisticsDto> getStatisticsMy() {
+        LOGGER.trace("Request /api/statistics/my");
+        StatisticsDto response = postService.getStatisticsMy();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/api/profile/my", consumes = "multipart/form-data")
     public ResponseEntity<RegistrationDto> changePhoto(@ModelAttribute LoginProfileDto loginProfileDto){
         RegistrationDto registrationDto = generalService.changeProfileWithPhoto(

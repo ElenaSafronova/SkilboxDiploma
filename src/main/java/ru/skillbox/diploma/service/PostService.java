@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.diploma.dto.StatisticsDto;
 import ru.skillbox.diploma.model.Post;
+import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.dto.AllPostDto;
@@ -29,6 +30,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
+
+    @Autowired
+    private AuthService authService;
+
     @Autowired
     private PostRepository postRepository;
 
@@ -239,7 +244,7 @@ public class PostService {
     }
 
     public StatisticsDto getStatisticsAll() {
-        System.out.println(globalSettingsService.findByCode(GlobalSettingCode.STATISTICS_IS_PUBLIC.name()));
+        logger.info(globalSettingsService.findByCode(GlobalSettingCode.STATISTICS_IS_PUBLIC.name()).toString());
         // В случае, если
         // публичный показ статистики блога запрещён
         // (см. соответствующий параметр в global_settings)
@@ -247,22 +252,43 @@ public class PostService {
          if (globalSettingsService
                 .findByCode(GlobalSettingCode.STATISTICS_IS_PUBLIC
                         .name()).getValue()
-                .equals(GlobalSettingValue.YES.name()))
+                .equals(GlobalSettingValue.NO.name()))
         {
-            int postsCount = postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
-                    (byte) 1,
-                    PostStatus.ACCEPTED,
-                    ZonedDateTime.now());
-            int likes = voteRepository.countByValue((byte) 1);
-            int dislikes = voteRepository.countByValue((byte) -1);
-            int viewCount = postRepository.viewCountSum(ZonedDateTime.now());
-            long firstPublication = Instant.from(postRepository.findPostListByIsActiveAndStatusAndTimeLessThanEqual(
-                    (byte) 1,
-                    PostStatus.ACCEPTED,
-                    ZonedDateTime.now()
-            ).get(0).getTime()).getEpochSecond();
-            return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
+            if (authService.getCurUser().getIsModerator() != 1){
+                return null;
+            }
         }
-        return null;
+        int postsCount = postRepository.countByIsActiveAndStatusAndTimeLessThanEqual(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now());
+        int likes = voteRepository.countByValue((byte) 1);
+        int dislikes = voteRepository.countByValue((byte) -1);
+        int viewCount = postRepository.viewCountSum(ZonedDateTime.now());
+        long firstPublication = Instant.from(postRepository.findPostListByIsActiveAndStatusAndTimeLessThanEqual(
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now()
+        ).get(0).getTime()).getEpochSecond();
+        return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
+    }
+
+    public StatisticsDto getStatisticsMy() {
+        int viewCount = 0;
+        User curUser = authService.getCurUser();
+        List<Post> curUserPosts = postRepository.findPostListByUserAndIsActiveAndStatusAndTimeLessThanEqual(
+                curUser,
+                (byte) 1,
+                PostStatus.ACCEPTED,
+                ZonedDateTime.now()
+        );
+        int postsCount = curUserPosts.size();
+        int likes = voteRepository.countByUserAndValue(curUser, (byte) 1);
+        int dislikes = voteRepository.countByUserAndValue(curUser, (byte) -1);
+        for (Post post : curUserPosts){
+            viewCount += post.getViewCount();
+        }
+        long firstPublication = Instant.from(curUserPosts.get(0).getTime()).getEpochSecond();
+        return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
     }
 }
