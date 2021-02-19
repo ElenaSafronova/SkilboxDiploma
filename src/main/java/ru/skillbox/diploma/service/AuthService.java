@@ -63,9 +63,6 @@ public class AuthService {
             return null;
         }
 
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        logger.info("authentication.getDetails(): " + authentication.getDetails());
-
         String sessId = getSessionId();
 
         if(loggedUsers.containsKey(sessId)){
@@ -98,7 +95,7 @@ public class AuthService {
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUserName = authentication.getName();
-            LOGGER.info(currentUserName);
+            LOGGER.info("authentication.getName(): " + currentUserName);
         }
 //        User curUser = (User)authentication.getPrincipal();
 //        logger.info("--- curUser: " + curUser);

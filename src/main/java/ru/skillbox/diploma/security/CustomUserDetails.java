@@ -2,14 +2,12 @@ package ru.skillbox.diploma.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.skillbox.diploma.model.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,11 +25,10 @@ public class CustomUserDetails implements UserDetails {
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
-    private boolean isModerator;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return null;
+//        return authorities;
         return AuthorityUtils.createAuthorityList("VALID_USER");
     }
 
@@ -69,7 +66,4 @@ public class CustomUserDetails implements UserDetails {
         return username + " " + password;
     }
 
-    public boolean isModerator() {
-        return isModerator;
-    }
 }

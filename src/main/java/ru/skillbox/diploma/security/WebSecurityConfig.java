@@ -25,8 +25,6 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-//    @Autowired
-//    private DataSource dataSource;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -36,13 +34,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth
-//                .userDetailsService(userDetailsService)
-//                .passwordEncoder(bCryptPasswordEncoder);
-//    }
 //
 //    @Override
 //    public void configure(WebSecurity web) throws Exception {
@@ -55,10 +46,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//        auth.jdbcAuthentication()
-//            .dataSource(dataSource)
-//            .passwordEncoder(passwordEncoder())
-//            .usersByUsernameQuery("select email, password, is_moderator from users where email = ?");
     }
 
 
@@ -72,15 +59,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().accessDeniedPage("/403")
                 .and()
                     .formLogin()
-//                        .loginPage("/api/auth/login")
+//                        .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
                     .permitAll()
                 .and()
                     .logout()
-//                        .logoutUrl("/api/auth/logout")
+//                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/")
-//                        .invalidateHttpSession(true)
+                        .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                     .permitAll()

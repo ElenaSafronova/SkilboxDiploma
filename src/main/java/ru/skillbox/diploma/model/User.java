@@ -51,16 +51,16 @@ public class User {
     @Column(columnDefinition="Text")
     private String photo;
 
-    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "moderator", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Post> moderatedPostsList;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> postList;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PostComment> postCommentsList;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Vote> postVotesList;
 
     public User(@NotNull(message = "isModerator cannot be null") byte isModerator,
@@ -74,5 +74,19 @@ public class User {
         this.email = email;
         this.password = password;
         this.setRegTime(ZonedDateTime.now());
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", isModerator=" + isModerator +
+                ", regTime=" + regTime +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", code='" + code + '\'' +
+                ", photo='" + photo + '\'' +
+                '}';
     }
 }

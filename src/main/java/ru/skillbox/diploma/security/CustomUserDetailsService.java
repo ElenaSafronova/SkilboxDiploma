@@ -3,9 +3,12 @@ package ru.skillbox.diploma.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.service.UserService;
@@ -16,19 +19,17 @@ import java.util.ArrayList;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+    Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     @Autowired
     private UserService userService;
 
-    Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
-
     @Override
     @Transactional
     public UserDetails loadUserByUsername(@NotNull String email) throws UsernameNotFoundException {
-        logger.info("String email is " + email);
+        logger.info("!loadUserByUsername! String email is " + email);
 
 //        User petrov = userService.findUserByEmail("petrov@mail.ru");
-//        System.out.println(petrov.getName());
 //
 //        CustomUserDetails petrovInMemory =  CustomUserDetails.builder()
 //                .username(petrov.getEmail())
@@ -40,7 +41,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 //                .isEnabled(true)
 //                .isModerator(petrov.getIsModerator() == 1)
 //                .build();
-//        System.out.println(petrovInMemory.getUsername() + petrovInMemory.getPassword() + petrovInMemory.isModerator());
 //        return petrovInMemory;
 
         User curUser = userService.findUserByEmail(email);
@@ -61,8 +61,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 curUser.getName(),
                 curUser.getPassword(),
-                curUser.getIsModerator() == 1,
-                true, true,
+                true,true, true,
                 true, new ArrayList<>());
+//        AuthorityUtils.createAuthorityList("USER")
     }
 }
