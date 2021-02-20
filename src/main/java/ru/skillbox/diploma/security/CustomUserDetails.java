@@ -28,8 +28,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return authorities;
-        return AuthorityUtils.createAuthorityList("VALID_USER");
+        return authorities;
+//        return AuthorityUtils.createAuthorityList("VALID_USER");
     }
 
     @Override

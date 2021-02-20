@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +37,9 @@ public class AuthService {
     @Autowired
     private CaptchaService captchaService;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     private User curUser = null;
     private Map<String, Integer> loggedUsers = new Hashtable<>();
 
@@ -44,6 +49,7 @@ public class AuthService {
 
     public UserDataAuthDto login(LoginDto loginDto) {
         if (loginDto == null){
+            LOGGER.info("loginDto is null");
             return null;
         }
 
@@ -80,31 +86,37 @@ public class AuthService {
             userDataAuthDto.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
         }
         curUser = userService.findById(authService.getCurUserId());
+
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(curEmail, curPass)
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        org.springframework.security.core.userdetails.User user =
+                (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+        LOGGER.info("!!! authorized user " + user.getUsername());
+
         return userDataAuthDto;
     }
 
     public AuthenticationDto checkAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.info("authentication.getDetails(): " + authentication.getDetails());
-
         LOGGER.info("authentication" + authentication.toString());
         if (authentication.getPrincipal().equals("anonymousUser")) {
             LOGGER.info("--- anonymousUser");
-//            return new AuthenticationDto(null);
+            return new AuthenticationDto(null);
         }
 
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentUserName = authentication.getName();
-            LOGGER.info("authentication.getName(): " + currentUserName);
+            String currentUserEmail = authentication.getName();
+            LOGGER.info("authentication.getName(): " + currentUserEmail);
+            return new AuthenticationDto(new UserDataAuthDto(userService.findUserByEmail(currentUserEmail)));
         }
-//        User curUser = (User)authentication.getPrincipal();
-//        logger.info("--- curUser: " + curUser);
 
         String sessId = getSessionId();
         LOGGER.info("sessId: " + sessId);
         if(loggedUsers.containsKey(sessId)){
             User curUser = userService.findById(loggedUsers.get(sessId));
-            LOGGER.debug("curUser: " + curUser.getName() + " " + curUser.getEmail());
+            LOGGER.debug("curUser from Map: " + curUser.getName() + " " + curUser.getEmail());
             return new AuthenticationDto(new UserDataAuthDto(curUser));
         }
         return new AuthenticationDto(null);

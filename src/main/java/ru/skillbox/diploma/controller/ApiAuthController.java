@@ -40,14 +40,12 @@ public class ApiAuthController {
     private GeneralService generalService;
 
     @GetMapping("/check")
-    @MessageMapping("/login")
     public ResponseEntity<AuthenticationDto> checkAuthorization(
             @Header("simpSessionId") String sessionId,
             HttpSession session
     )
     {
         LOGGER.trace("Request /api/auth/check");
-        LOGGER.trace("simpSessionId: " + sessionId);
         LOGGER.trace("HttpSessionId: " + session.getId());
 
         return new ResponseEntity<>(authService.checkAuthentication(), HttpStatus.OK);
@@ -65,7 +63,6 @@ public class ApiAuthController {
         LOGGER.trace("login?error");
     }
 
-    @ResponseBody
     @PostMapping("/login")
     public ResponseEntity<AuthenticationDto> authUser(@RequestBody LoginDto loginDto) {
         LOGGER.trace("POST /api/auth/login");

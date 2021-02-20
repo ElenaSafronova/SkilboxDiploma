@@ -29,20 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(@NotNull String email) throws UsernameNotFoundException {
         logger.info("!loadUserByUsername! String email is " + email);
 
-//        User petrov = userService.findUserByEmail("petrov@mail.ru");
-//
-//        CustomUserDetails petrovInMemory =  CustomUserDetails.builder()
-//                .username(petrov.getEmail())
-//                .password(petrov.getPassword())
-//                .authorities(new ArrayList<>())
-//                .isAccountNonExpired(true)
-//                .isAccountNonLocked(true)
-//                .isCredentialsNonExpired(true)
-//                .isEnabled(true)
-//                .isModerator(petrov.getIsModerator() == 1)
-//                .build();
-//        return petrovInMemory;
-
         User curUser = userService.findUserByEmail(email);
         logger.debug("userRepository.findByEmail(" + email + ") result is " + curUser);
         if (curUser == null){
@@ -51,15 +37,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.debug("user found: " + curUser);
 
         return buildUserForAuthentication(curUser);
-
-//        CustomUserDetails curUserDetails = new CustomUserDetails(curUser);
-//        return curUserDetails;
     }
 
     private UserDetails buildUserForAuthentication(User curUser) {
         logger.info("UserDetails buildUserForAuthentication: " + curUser.toString());
         return new org.springframework.security.core.userdetails.User(
-                curUser.getName(),
+                curUser.getEmail(),
                 curUser.getPassword(),
                 true,true, true,
                 true, new ArrayList<>());
