@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class GeneralService {
@@ -171,4 +172,14 @@ public class GeneralService {
                 Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 
+    public boolean sendEmailToUser(String email) {
+        User userFromDB = userService.findUserByEmail(email);
+        if (userFromDB == null){
+            LOGGER.info("User with email " + email + " not found");
+            return false;
+        }
+        String link = "/login/change-password/" + UUID.randomUUID().toString();
+
+        return true;
+    }
 }

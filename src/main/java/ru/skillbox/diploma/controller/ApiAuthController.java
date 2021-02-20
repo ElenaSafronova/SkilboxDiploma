@@ -10,20 +10,19 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.exception.EmailExistsException;
-import ru.skillbox.diploma.service.AuthService;
-import ru.skillbox.diploma.service.CaptchaService;
-import ru.skillbox.diploma.service.PostService;
-import ru.skillbox.diploma.service.UserService;
+import ru.skillbox.diploma.service.*;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class ApiAuthController {
-    Logger logger = LoggerFactory.getLogger(ApiAuthController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiAuthController.class);
 
     @Autowired
     private UserService userService;
@@ -37,6 +36,9 @@ public class ApiAuthController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private GeneralService generalService;
+
     @GetMapping("/check")
     @MessageMapping("/login")
     public ResponseEntity<AuthenticationDto> checkAuthorization(
@@ -44,9 +46,9 @@ public class ApiAuthController {
             HttpSession session
     )
     {
-        logger.trace("Request /api/auth/check");
-        logger.trace("simpSessionId: " + sessionId);
-        logger.trace("HttpSessionId: " + session.getId());
+        LOGGER.trace("Request /api/auth/check");
+        LOGGER.trace("simpSessionId: " + sessionId);
+        LOGGER.trace("HttpSessionId: " + session.getId());
 
         return new ResponseEntity<>(authService.checkAuthentication(), HttpStatus.OK);
     }
@@ -59,15 +61,15 @@ public class ApiAuthController {
 
     @GetMapping("/login")
     public void login(){
-        logger.trace("GET /api/auth/login");
-        logger.trace("login?error");
+        LOGGER.trace("GET /api/auth/login");
+        LOGGER.trace("login?error");
     }
 
     @ResponseBody
     @PostMapping("/login")
     public ResponseEntity<AuthenticationDto> authUser(@RequestBody LoginDto loginDto) {
-        logger.trace("POST /api/auth/login");
-        logger.trace("loginDto = " + loginDto.toString());
+        LOGGER.trace("POST /api/auth/login");
+        LOGGER.trace("loginDto = " + loginDto.toString());
         UserDataAuthDto userDataAuthDto = authService.login(loginDto);
 
         return new ResponseEntity<>(new AuthenticationDto(userDataAuthDto), HttpStatus.OK);
@@ -75,14 +77,14 @@ public class ApiAuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegistrationDto> registerUser(@RequestBody NewUserDataDto newUserDataDto) throws EmailExistsException {
-        logger.trace("/api/auth/register");
+        LOGGER.trace("/api/auth/register");
         RegistrationDto registrationDto = authService.registerNewUser(newUserDataDto);
         return new ResponseEntity(registrationDto, HttpStatus.OK);
     }
 
     @GetMapping("/logout")
     public ResponseEntity<AuthenticationFailedDto> logOut() throws URISyntaxException {
-        logger.trace("/api/auth/logout");
+        LOGGER.trace("/api/auth/logout");
         authService.logout();
 
 //        URI uri = new URI("/");
@@ -95,6 +97,15 @@ public class ApiAuthController {
 //        response.setHeader("Location", "/api/post");
 
         return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
+    }
+
+    @PostMapping("/restore")
+    public ResponseEntity<AuthenticationFailedDto> restorePassword(
+            @RequestBody HashMap<String ,String> emailResp){
+        LOGGER.trace("/api/auth/restore");
+        String email = emailResp.get("email");
+        boolean result = generalService.sendEmailToUser(email);
+        return new ResponseEntity<>(new AuthenticationFailedDto(result), HttpStatus.OK);
     }
 }
 

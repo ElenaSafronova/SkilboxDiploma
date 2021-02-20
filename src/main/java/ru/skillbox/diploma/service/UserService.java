@@ -26,7 +26,6 @@ public class UserService {
 
     public User findUserByEmail(String email) {
         logger.info("findUserByEmail " + email);
-        logger.info(userRepository.findByEmail(email).toString());
         return userRepository.findByEmail(email);
     }
 
