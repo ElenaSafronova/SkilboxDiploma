@@ -16,6 +16,8 @@ import ru.skillbox.diploma.service.UserService;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -41,11 +43,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserDetails buildUserForAuthentication(User curUser) {
         logger.info("UserDetails buildUserForAuthentication: " + curUser.toString());
+        List<Role> roles;
+        if (curUser.getIsModerator() == 1) {
+            roles = Arrays.asList(Role.ROLE_MODERATOR, Role.ROLE_USER);
+        }
+        else{
+            roles = Arrays.asList(Role.ROLE_USER);
+        }
         return new org.springframework.security.core.userdetails.User(
                 curUser.getEmail(),
                 curUser.getPassword(),
                 true,true, true,
-                true, new ArrayList<>());
+                true, roles);
 //        AuthorityUtils.createAuthorityList("USER")
     }
 }

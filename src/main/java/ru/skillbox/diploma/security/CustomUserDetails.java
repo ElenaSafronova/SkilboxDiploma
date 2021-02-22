@@ -18,7 +18,7 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     Logger logger = LoggerFactory.getLogger(CustomUserDetails.class);
 
-    private List<GrantedAuthority> authorities;
+    private List<Role> authorities;
     private String username;
     private String password;
     private boolean isAccountNonExpired;
