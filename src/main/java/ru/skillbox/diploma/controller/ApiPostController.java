@@ -6,9 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.AllPostDto;
 import ru.skillbox.diploma.dto.OnePostDto;
+import ru.skillbox.diploma.dto.ResultDto;
+import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.service.AuthService;
 import ru.skillbox.diploma.service.PostService;
 import ru.skillbox.diploma.value.PostStatus;
 
@@ -16,6 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 
 @RestController
@@ -23,6 +28,9 @@ import java.time.format.DateTimeFormatter;
 public class ApiPostController {
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private AuthService authService;
 
     Logger logger = LoggerFactory.getLogger(ApiPostController.class);
 
@@ -76,6 +84,38 @@ public class ApiPostController {
     public ResponseEntity<OnePostDto> getPostByID(@PathVariable int id){
         logger.trace("/api/post/" + id);
         return new ResponseEntity<>(new OnePostDto(postService.findById(id)), HttpStatus.OK);
+    }
+
+    @PostMapping("/like")
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultDto> like(@RequestBody Map<String, Integer> request){
+        logger.trace("/api/post/like");
+        int id = request.get("post_id");
+        logger.info(String.valueOf(id));
+        User curUser = authService.getCurUser();
+        boolean result = false;
+        if(curUser != null){
+            result = postService.vote((byte) 1,
+                    authService.getCurUser(),
+                    postService.findById(id));
+        }
+        return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
+    }
+
+    @PostMapping("/dislike")
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultDto> dislike(@RequestBody Map<String, Integer> request){
+        logger.trace("/api/post/dislike");
+        int id = request.get("post_id");
+        logger.info(String.valueOf(id));
+        User curUser = authService.getCurUser();
+        boolean result = false;
+        if(curUser != null){
+            result = postService.vote((byte) -1,
+                    authService.getCurUser(),
+                    postService.findById(id));
+        }
+        return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
     }
 
 }

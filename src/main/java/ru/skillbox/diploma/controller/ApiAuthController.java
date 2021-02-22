@@ -3,10 +3,10 @@ package ru.skillbox.diploma.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.exception.EmailExistsException;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -82,29 +81,26 @@ public class ApiAuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<AuthenticationFailedDto> logOut(HttpServletRequest request, HttpServletResponse response) throws URISyntaxException {
+    public ResponseEntity<ResultDto> logOut(HttpServletRequest request,
+                                            HttpServletResponse response) throws URISyntaxException {
         LOGGER.trace("/api/auth/logout");
         authService.logout(request, response);
 
 //        URI uri = new URI("/");
 //        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.setLocation(uri);
-//        return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
-
-//        HttpServletResponse response = null;
 //        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-//        response.setHeader("Location", "/api/post");
+//        response.setHeader("Location", "/");
 
-        return new ResponseEntity<>(new AuthenticationFailedDto(true), HttpStatus.OK);
+        return new ResponseEntity<>(new ResultDto(true), HttpStatus.OK);
     }
 
     @PostMapping("/restore")
-    public ResponseEntity<AuthenticationFailedDto> restorePassword(
+    public ResponseEntity<ResultDto> restorePassword(
             @RequestBody HashMap<String ,String> emailResp){
         LOGGER.trace("/api/auth/restore");
         String email = emailResp.get("email");
         boolean result = generalService.sendEmailToUser(email);
-        return new ResponseEntity<>(new AuthenticationFailedDto(result), HttpStatus.OK);
+        return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
     }
 }
 

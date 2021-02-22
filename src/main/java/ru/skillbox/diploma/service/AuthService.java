@@ -88,7 +88,7 @@ public class AuthService {
             LOGGER.trace("postService.countByModerationStatus(PostStatus.NEW)");
             userDataAuthDto.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
         }
-        curUser = userService.findById(authService.getCurUserId());
+//        curUser = userService.findById(authService.getCurUserId());
 
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(curEmail, curPass)
@@ -96,6 +96,7 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(auth);
         org.springframework.security.core.userdetails.User user =
                 (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+        curUser = userService.findUserByEmail(user.getUsername());
         LOGGER.info("!!! authorized user " + user.getUsername());
 
         return userDataAuthDto;

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.diploma.dto.StatisticsDto;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.model.Vote;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.dto.AllPostDto;
@@ -290,5 +291,13 @@ public class PostService {
         }
         long firstPublication = Instant.from(curUserPosts.get(0).getTime()).getEpochSecond();
         return new StatisticsDto(postsCount, likes, dislikes, viewCount, firstPublication);
+    }
+
+    public boolean vote(byte value, User curUser, Post curPost) {
+        if (voteRepository.findByUserAndPost(curUser, curPost) == null){
+            voteRepository.save(new Vote(curUser, curPost, value));
+            return true;
+        }
+        return false;
     }
 }

@@ -5,6 +5,6 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class AuthenticationFailedDto {
+public class ResultDto {
     private boolean result = false;
 }

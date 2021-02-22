@@ -40,5 +40,12 @@ public class Vote {
     @NotNull(message = "value cannot be null")
     private byte value;
 
-
+    public Vote(@NotNull(message = "userId cannot be null") User user,
+                @NotNull(message = "postId cannot be null") Post post,
+                @NotNull(message = "value cannot be null") byte value) {
+        this.user = user;
+        this.post = post;
+        this.value = value;
+        this.time = ZonedDateTime.now();
+    }
 }
