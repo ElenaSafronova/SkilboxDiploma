@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import ru.skillbox.diploma.dto.*;
@@ -17,6 +18,8 @@ import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.value.PostStatus;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -109,7 +112,8 @@ public class AuthService {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUserEmail = authentication.getName();
             LOGGER.info("authentication.getName(): " + currentUserEmail);
-            return new AuthenticationDto(new UserDataAuthDto(userService.findUserByEmail(currentUserEmail)));
+            return new AuthenticationDto(
+                    new UserDataAuthDto(userService.findUserByEmail(currentUserEmail)));
         }
 
         String sessId = getSessionId();
@@ -122,7 +126,11 @@ public class AuthService {
         return new AuthenticationDto(null);
     }
 
-    public boolean logout() {
+    public boolean logout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null)
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+
         String sessionId = getSessionId();
         if (loggedUsers.containsKey(sessionId)){
             loggedUsers.remove(sessionId);

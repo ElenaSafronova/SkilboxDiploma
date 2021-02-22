@@ -12,6 +12,8 @@ import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.exception.EmailExistsException;
 import ru.skillbox.diploma.service.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
@@ -80,9 +82,9 @@ public class ApiAuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<AuthenticationFailedDto> logOut() throws URISyntaxException {
+    public ResponseEntity<AuthenticationFailedDto> logOut(HttpServletRequest request, HttpServletResponse response) throws URISyntaxException {
         LOGGER.trace("/api/auth/logout");
-        authService.logout();
+        authService.logout(request, response);
 
 //        URI uri = new URI("/");
 //        HttpHeaders httpHeaders = new HttpHeaders();
