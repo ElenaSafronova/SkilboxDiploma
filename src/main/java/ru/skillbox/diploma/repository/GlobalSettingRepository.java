@@ -11,4 +11,6 @@ public interface GlobalSettingRepository extends CrudRepository<GlobalSetting, I
     GlobalSetting findById(int id);
 
     GlobalSetting findByCode(String globalSettingName);
+
+    GlobalSetting findByName(String name);
 }
