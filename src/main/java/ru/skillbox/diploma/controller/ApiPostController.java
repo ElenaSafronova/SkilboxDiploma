@@ -118,4 +118,13 @@ public class ApiPostController {
         return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<AllPostDto> getMyPosts(@RequestParam(required = false, defaultValue = "0") int offset,
+                                                  @RequestParam(required = false, defaultValue = "10") int limit,
+                                                  @RequestParam String status){
+        logger.trace("/api/post");
+        AllPostDto postResponse = postService.getMyPosts(authService.getCurUser(), offset, limit, status);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
 }

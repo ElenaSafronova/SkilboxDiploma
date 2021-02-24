@@ -33,6 +33,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                                           PostStatus accepted,
                                                                           ZonedDateTime now);
 
+    Page<Post> findAllByUser(User user, Pageable pageable);
+
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,
                                                               ZonedDateTime time,
@@ -123,8 +125,6 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                     "    p.view_count as viewCount FROM posts p WHERE p.is_active = 1 AND p.moderation_status = 'ACCEPTED'",
             nativeQuery = true)
     Map<String, String> findAllPosts();
-
-
 
 
 //    STR_TO_DATE(time, '%Y-%m-%d')

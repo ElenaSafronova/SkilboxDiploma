@@ -56,6 +56,11 @@ public class PostService {
     final String BEST = "best";
     final String EARLY = "early";
 
+    final String INACTIVE = "inactive";
+    final String PENDING = "pending";
+    final String DECLINED = "declined";
+    final String PUBLISHED = "published";
+
     public Post save(Post post){
         return postRepository.save(post);
     }
@@ -77,9 +82,13 @@ public class PostService {
                                          ZonedDateTime time,
                                          Pageable pageable)
     {
-        //        сохранить количество постов в классе GeneralResponse и сам общий лист постов
         return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqual(
                 isActive, status, time, pageable);
+    }
+
+    private Page<Post> findUserPosts(User user, Pageable pageable)
+    {
+        return postRepository.findAllByUser(user, pageable);
     }
 
     public AllPostDto searchPosts(byte isActive,
@@ -145,6 +154,49 @@ public class PostService {
         }
 
         return new AllPostDto(totalElements, postDtoList);
+    }
+
+    public AllPostDto getMyPosts(User user, int offset, int limit, String status) {
+
+        logger.trace("Request /api/post?offset=" + offset +
+                "&limit="+ limit  + "&status=" + status);
+
+        Pageable pagingAndSorting = definePagingAndSortingType(status, offset, limit);
+
+        Page<Post> postPage = findUserPosts(user, pagingAndSorting);
+
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        switch (status) {
+            case INACTIVE:
+                logger.trace("posts sorted by is_active = 0");
+                postPage.stream()
+                        .filter(post -> post.getIsActive() == (byte) 0)
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+            case PENDING:
+                logger.trace("posts sorted by is_active = 1, moderation_status = NEW");
+                postPage.stream()
+                        .filter(post -> post.getIsActive() == (byte) 1
+                                && post.getStatus().equals(PostStatus.NEW))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+            case DECLINED:
+                logger.trace("posts sorted by is_active = 1, moderation_status = DECLINED");
+                postPage.stream()
+                        .filter(post -> post.getIsActive() == (byte) 1
+                                && post.getStatus().equals(PostStatus.DECLINED))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+            case PUBLISHED:
+                logger.trace("posts sorted by is_active = 1, moderation_status = ACCEPTED");
+                postPage.stream()
+                        .filter(post -> post.getIsActive() == (byte) 1
+                                && post.getStatus().equals(PostStatus.ACCEPTED))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+        }
+        return new AllPostDto(postPage.getTotalPages(), postDtoList);
     }
 
     public AllPostDto getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){

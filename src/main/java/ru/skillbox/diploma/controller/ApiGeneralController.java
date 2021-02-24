@@ -1,21 +1,19 @@
 package ru.skillbox.diploma.controller;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.support.ServletContextResource;
 import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.service.*;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.*;
 
 @RestController
@@ -110,25 +108,15 @@ public class ApiGeneralController {
         return new ResponseEntity<>(registrationDto, HttpStatus.OK);
     }
 
-    @RequestMapping("/img/userPhoto")
-    @ResponseBody
-    public ResponseEntity<Resource> getImageAsResource(HttpServletRequest request) {
-        ServletContext servletContext = request.getServletContext();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "multipart/form-data");
-        Resource resource =
-                new ServletContextResource(servletContext, "");
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-    }
-
-//    @RequestMapping(value = "user/userPhoto/{userId}", method = RequestMethod.GET)
 //    @ResponseBody
-//    public ResponseEntity<InputStreamResource> downloadUserAvatarImage(@PathVariable int userId) {
-//        String avatar = generalService.findUserAccountAvatarById(userId);
-//
+//    @GetMapping("/img/userPhoto/{userId}/{photoName}")
+//    public ResponseEntity<InputStreamResource> getUserPhoto(@PathVariable int userId,
+//                                                                 @PathVariable String photoName) throws FileNotFoundException {
+//        LOGGER.info("/img/userPhoto");
+//        File file = new File("src/main/resources/static/img/userPhoto/" + userId + "/" + photoName);
 //        return ResponseEntity.ok()
-//                .contentLength(avatar.length())
-//                .contentType(MediaType.parseMediaType(avatar.getContentType()))
-//                .body(new InputStreamResource(avatar.getInputStream()));
+//                .contentLength(photoName.length())
+//                .contentType(MediaType.parseMediaType("multipart/form-data"))
+//                .body(new InputStreamResource(new FileInputStream(file)));
 //    }
 }
