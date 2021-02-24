@@ -164,7 +164,7 @@ public class AuthService {
         }
     }
 
-    public RegistrationDto registerNewUser(NewUserDataDto newUserDataDto) throws EmailExistsException {
+    public ResultAndErrorDto registerNewUser(NewUserDataDto newUserDataDto) throws EmailExistsException {
         Map<String, String> errors = new HashMap<>();
 
         if (userService.findUserByEmail(newUserDataDto.getEmail()) == null){
@@ -184,7 +184,7 @@ public class AuthService {
             }
 
             if (errors.size() > 0){
-                return new RegistrationDto(false, errors);
+                return new ResultAndErrorDto(false, errors);
             }
 
             User newUser = new User(
@@ -196,11 +196,11 @@ public class AuthService {
             userService.save(newUser);
 
             LOGGER.debug(newUser.toString());
-            return new RegistrationDto(true, null);
+            return new ResultAndErrorDto(true, null);
         }
 
         errors.put("email", "Этот e-mail уже зарегистрирован");
-        return new RegistrationDto(false, errors);
+        return new ResultAndErrorDto(false, errors);
 //        throw new EmailExistsException(newUserDataDto.getEmail());
     }
 }

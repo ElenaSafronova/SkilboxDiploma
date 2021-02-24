@@ -3,7 +3,6 @@ package ru.skillbox.diploma.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
@@ -74,10 +72,10 @@ public class ApiAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationDto> registerUser(@RequestBody NewUserDataDto newUserDataDto) throws EmailExistsException {
+    public ResponseEntity<ResultAndErrorDto> registerUser(@RequestBody NewUserDataDto newUserDataDto) throws EmailExistsException {
         LOGGER.trace("/api/auth/register");
-        RegistrationDto registrationDto = authService.registerNewUser(newUserDataDto);
-        return new ResponseEntity(registrationDto, HttpStatus.OK);
+        ResultAndErrorDto resultAndErrorDto = authService.registerNewUser(newUserDataDto);
+        return new ResponseEntity(resultAndErrorDto, HttpStatus.OK);
     }
 
     @GetMapping("/logout")

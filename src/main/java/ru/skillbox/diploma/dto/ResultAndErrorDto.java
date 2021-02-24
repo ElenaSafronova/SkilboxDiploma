@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class RegistrationDto {
+public class ResultAndErrorDto {
     private boolean result;
     private Map<String, String> errors;
 }

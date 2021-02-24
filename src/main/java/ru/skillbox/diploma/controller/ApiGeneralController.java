@@ -1,10 +1,8 @@
 package ru.skillbox.diploma.controller;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.service.*;
 
-import java.io.*;
 import java.util.*;
 
 @RestController
@@ -88,24 +85,24 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/api/profile/my", consumes = "multipart/form-data")
-    public ResponseEntity<RegistrationDto> changePhoto(@ModelAttribute LoginProfileDto loginProfileDto){
-        RegistrationDto registrationDto = generalService.changeProfileWithPhoto(
+    public ResponseEntity<ResultAndErrorDto> changePhoto(@ModelAttribute LoginProfileDto loginProfileDto){
+        ResultAndErrorDto resultAndErrorDto = generalService.changeProfileWithPhoto(
                  loginProfileDto.getName(),
                  loginProfileDto.getEmail(),
                  loginProfileDto.getPassword(),
                  loginProfileDto.getPhoto()
          );
-         return new ResponseEntity<>(registrationDto, HttpStatus.OK);
+         return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RegistrationDto> changeProfile(@RequestBody LoginProfileDto loginProfileDto){
-        RegistrationDto registrationDto =  generalService.changeProfile(
+    public ResponseEntity<ResultAndErrorDto> changeProfile(@RequestBody LoginProfileDto loginProfileDto){
+        ResultAndErrorDto resultAndErrorDto =  generalService.changeProfile(
                 loginProfileDto.getName(),
                 loginProfileDto.getEmail(),
                 loginProfileDto.getPassword()
         );
-        return new ResponseEntity<>(registrationDto, HttpStatus.OK);
+        return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
     }
 
 //    @ResponseBody

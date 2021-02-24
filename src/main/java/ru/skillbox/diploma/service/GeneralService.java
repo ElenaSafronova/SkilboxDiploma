@@ -4,17 +4,14 @@ import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skillbox.diploma.dto.RegistrationDto;
+import ru.skillbox.diploma.dto.ResultAndErrorDto;
 import ru.skillbox.diploma.model.User;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,33 +35,33 @@ public class GeneralService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public RegistrationDto changeProfile(String name,
-                                         String email,
-                                         String password)
+    public ResultAndErrorDto changeProfile(String name,
+                                           String email,
+                                           String password)
     {
         LOGGER.trace("uploadProfile: " + name + " " + email + " " + password);
         Map<String, String> errors = checkErrors(name, email, password, null);
         if (errors.size() > 0){
-            return new RegistrationDto(false, errors);
+            return new ResultAndErrorDto(false, errors);
         }
         changeProfileData(name, email, password, null);
-        return new RegistrationDto(true, null);
+        return new ResultAndErrorDto(true, null);
     }
 
-    public RegistrationDto changeProfileWithPhoto(String name,
-                                                  String email,
-                                                  String password,
-                                                  MultipartFile photo)
+    public ResultAndErrorDto changeProfileWithPhoto(String name,
+                                                    String email,
+                                                    String password,
+                                                    MultipartFile photo)
     {
         LOGGER.trace("uploadProfileWithPhoto: " + photo.getOriginalFilename() + " "
                 + photo.getSize() + photo.getContentType());
         LOGGER.trace(name + " " + email + " " + password);
         Map<String, String> errors = checkErrors(name, email, password, photo);
         if (errors.size() > 0){
-            return new RegistrationDto(false, errors);
+            return new ResultAndErrorDto(false, errors);
         }
         changeProfileData(name, email, password, photo);
-        return new RegistrationDto(true, null);
+        return new ResultAndErrorDto(true, null);
     }
 
     private Map<String, String> checkErrors(String name, String email,
