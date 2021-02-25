@@ -18,12 +18,12 @@ public class Tag2Post {
     private int id;
 
     @NotNull(message = "postId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
     @NotNull(message = "tagId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     private Tag tag;
 

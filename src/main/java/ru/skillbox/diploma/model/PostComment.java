@@ -23,14 +23,14 @@ public class PostComment {
     private PostComment parentComment;
 
     @NotNull(message = "postId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="post_id",
             referencedColumnName="id",
             updatable = false)
     private Post post;
 
     @NotNull(message = "userId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="user_id",
             referencedColumnName="id",
             updatable = false)

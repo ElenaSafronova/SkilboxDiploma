@@ -62,6 +62,9 @@ public class PostService {
     final String DECLINED = "declined";
     final String PUBLISHED = "published";
 
+    final String NEW = "new";
+    final String ACCEPTED = "accepted";
+
     public Post save(Post post){
         return postRepository.save(post);
     }
@@ -94,6 +97,14 @@ public class PostService {
     private Page<Post> findUserPosts(User user, Pageable pageable)
     {
         return postRepository.findAllByUser(user, pageable);
+    }
+
+    private Page<Post> findModerationPosts(User user, Pageable pagingAndSorting) {
+        Set<User> moderators = new HashSet<>(){{
+            add(user);
+            add(null);
+        }};
+        return postRepository.findByModerator(moderators, pagingAndSorting);
     }
 
     public AllPostDto searchPosts(byte isActive,
@@ -163,7 +174,7 @@ public class PostService {
 
     public AllPostDto getMyPosts(User user, int offset, int limit, String status) {
 
-        logger.trace("Request /api/post?offset=" + offset +
+        logger.trace("Request /api/post/my?offset=" + offset +
                 "&limit="+ limit  + "&status=" + status);
 
         Pageable pagingAndSorting = definePagingAndSortingType(status, offset, limit);
@@ -202,6 +213,40 @@ public class PostService {
                 break;
         }
         return new AllPostDto(postPage.getTotalPages(), postDtoList);
+    }
+
+    public AllPostDto getModerationPosts(User user, int offset, int limit, String status) {
+
+        logger.trace("Request /api/post/moderation?offset=" + offset +
+                "&limit="+ limit  + "&status=" + status);
+
+        Pageable pagingAndSorting = definePagingAndSortingType(status, offset, limit);
+
+        Page<Post> postPage = findModerationPosts(user, pagingAndSorting);
+
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        switch (status) {
+            case NEW:
+                logger.trace("posts новые, необходима модерация");
+                postPage.stream()
+                        .filter(post -> post.getStatus().equals(PostStatus.NEW))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+            case DECLINED:
+                logger.trace("posts отклонённые мной");
+                postPage.stream()
+                        .filter(post -> post.getStatus().equals(PostStatus.DECLINED))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+            case ACCEPTED:
+                logger.trace("posts утверждённые мной");
+                postPage.stream()
+                        .filter(post -> post.getStatus().equals(PostStatus.ACCEPTED))
+                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                break;
+        }
+        return new AllPostDto((int) postPage.getTotalElements(), postDtoList);
     }
 
     public AllPostDto getPostsByDate(int offset, int limit, ZonedDateTime dateStart, ZonedDateTime dateFinish){
@@ -298,7 +343,7 @@ public class PostService {
 
     public int countByModerationStatus(PostStatus postStatus) {
         logger.trace("count posts by status (countByModerationStatus): " + postStatus.toString());
-        return postRepository.countByStatus(postStatus);
+        return postRepository.countByStatusAndIsActive(postStatus, (byte) 1);
     }
 
     public StatisticsDto getStatisticsAll() {

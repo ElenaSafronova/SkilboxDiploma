@@ -140,4 +140,15 @@ public class ApiPostController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/moderation")
+    @Secured("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<AllPostDto> getMyModerationPosts(
+            @RequestParam(required = false, defaultValue = "0") int offset,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @RequestParam String status){
+        logger.trace("/api/post/moderation");
+        AllPostDto postResponse = postService.getModerationPosts(
+                authService.getCurUser(), offset, limit, status);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
 }

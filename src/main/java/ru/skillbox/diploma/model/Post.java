@@ -96,5 +96,19 @@ public class Post {
             this.setStatus(PostStatus.ACCEPTED);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", isActive=" + isActive +
+                ", status=" + status +
+                ", moderator=" + moderator +
+                ", user=" + user +
+                ", time=" + time +
+                ", title='" + title + '\'' +
+                ", viewCount=" + viewCount +
+                '}';
+    }
 }
 
