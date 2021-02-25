@@ -77,5 +77,24 @@ public class Post {
             joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     private List<Tag> tags = new ArrayList<>();
+
+
+    public Post(@NotNull(message = "isActive cannot be null") byte isActive,
+                @NotNull(message = "post creating time cannot be null") ZonedDateTime time,
+                @NotNull(message = "title cannot be null") String title,
+                @NotNull(message = "text cannot be null") String text,
+                User user)
+    {
+        this.isActive = isActive;
+        this.time = time.isBefore(ZonedDateTime.now()) ? ZonedDateTime.now() : time;
+        this.title = title;
+        this.text = text;
+        this.status = PostStatus.NEW;
+        this.user = user;
+        if (this.user.getIsModerator() == 1){
+            this.setModerator(user);
+            this.setStatus(PostStatus.ACCEPTED);
+        }
+    }
 }
 

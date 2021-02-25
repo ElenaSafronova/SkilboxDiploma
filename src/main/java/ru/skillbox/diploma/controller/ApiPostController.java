@@ -10,6 +10,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.AllPostDto;
 import ru.skillbox.diploma.dto.OnePostDto;
+import ru.skillbox.diploma.dto.ResultAndErrorDto;
 import ru.skillbox.diploma.dto.ResultDto;
 import ru.skillbox.diploma.model.User;
 import ru.skillbox.diploma.service.AuthService;
@@ -119,12 +120,26 @@ public class ApiPostController {
     }
 
     @GetMapping("/my")
+    @Secured("hasRole('ROLE_USER')")
     public ResponseEntity<AllPostDto> getMyPosts(@RequestParam(required = false, defaultValue = "0") int offset,
                                                   @RequestParam(required = false, defaultValue = "10") int limit,
                                                   @RequestParam String status){
-        logger.trace("/api/post");
+        logger.trace("/api/post/my");
         AllPostDto postResponse = postService.getMyPosts(authService.getCurUser(), offset, limit, status);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("")
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultAndErrorDto> addPost(@RequestBody OnePostDto newPost){
+        logger.trace("/api/post");
+        ResultAndErrorDto result = postService.addPost(
+                newPost.getTimestamp(),
+                newPost.getActive(),
+                newPost.getTitle(),
+                newPost.getTags(),
+                newPost.getText());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

@@ -28,6 +28,14 @@ public class TagService {
         return tagRepository.findAll();
     }
 
+    public Tag findByName(String name) {
+        return tagRepository.findByName(name);
+    }
+
+    public void saveNewTag(Tag tag) {
+        tagRepository.save(tag);
+    }
+
     public List<TagDto> findTagsWithWeight(String tagQuery) {
         int postsTotalCount = countActivePosts(); // количество активных публикаций, утверждённых модератором со временем публикации, не превышающем текущее время
         Iterable<Tag> allTags;
@@ -89,4 +97,5 @@ public class TagService {
                 ))
                 .toList().size();
     }
+
 }

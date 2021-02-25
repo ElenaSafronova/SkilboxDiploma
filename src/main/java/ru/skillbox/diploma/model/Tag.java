@@ -32,4 +32,11 @@ public class Tag {
         inverseJoinColumns = @JoinColumn(name = "post_id"))
     private Set<Post> posts;
 
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

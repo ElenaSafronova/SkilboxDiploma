@@ -1,6 +1,8 @@
 package ru.skillbox.diploma.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.PostComment;
 import ru.skillbox.diploma.model.Vote;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class OnePostDto {
     private int id;
     private long timestamp;

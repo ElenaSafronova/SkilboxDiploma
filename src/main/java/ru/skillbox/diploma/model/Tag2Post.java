@@ -26,4 +26,10 @@ public class Tag2Post {
     @ManyToOne
     @JoinColumn(name = "tag_id")
     private Tag tag;
+
+    public Tag2Post(@NotNull(message = "postId cannot be null") Post post,
+                    @NotNull(message = "tagId cannot be null") Tag tag) {
+        this.post = post;
+        this.tag = tag;
+    }
 }

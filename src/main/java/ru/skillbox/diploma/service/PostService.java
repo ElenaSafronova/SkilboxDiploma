@@ -9,15 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.skillbox.diploma.dto.StatisticsDto;
-import ru.skillbox.diploma.model.Post;
-import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.model.Vote;
+import ru.skillbox.diploma.dto.*;
+import ru.skillbox.diploma.model.*;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
 import ru.skillbox.diploma.repository.PostRepository;
-import ru.skillbox.diploma.dto.AllPostDto;
-import ru.skillbox.diploma.dto.CalendarDto;
-import ru.skillbox.diploma.dto.PostDto;
 import ru.skillbox.diploma.repository.VoteRepository;
 import ru.skillbox.diploma.value.GlobalSettingCode;
 import ru.skillbox.diploma.value.GlobalSettingValue;
@@ -46,6 +41,12 @@ public class PostService {
 
     @Autowired
     private GlobalSettingsService globalSettingsService;
+
+    @Autowired
+    private TagService tagService;
+
+    @Autowired
+    private Tag2PostService tag2PostService;
 
     Logger logger = LoggerFactory.getLogger(PostService.class);
 
@@ -351,5 +352,51 @@ public class PostService {
             return true;
         }
         return false;
+    }
+
+
+    public ResultAndErrorDto addPost(long timestamp, int active,
+                                     String title, List<String> tags, String text) {
+        logger.trace("addPost method, tags: " + tags);
+//        Многопользовательский режим
+//Если галочка не отмечена, публиковать посты может только модератор. Если отмечена - любой зарегистрированный пользователь
+        if(globalSettingsService
+                .findByCode(GlobalSettingCode.MULTIUSER_MODE.name())
+                .getValue()
+                .equals(GlobalSettingValue.YES.name())
+        || authService.getCurUser().getIsModerator() == 1){
+            Map<String, String> errors = findNewPostErrors(title, text);
+            if (errors.size() > 0){
+                return new ResultAndErrorDto(false, errors);
+            }
+
+            Post newPost = new Post((byte) active,
+                    ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.systemDefault()),
+                    title, text, authService.getCurUser());
+            postRepository.save(newPost);
+            logger.info("new Post in DB: " + newPost);
+
+            tags.forEach(tag -> {
+                System.out.println(tag);
+                Tag tagFromDB = tagService.findByName(tag);
+                System.out.println(tagFromDB);
+                Tag2Post tag2Post = new Tag2Post(newPost, tagFromDB);
+                tag2PostService.save(tag2Post);
+                logger.info("new tag2PostService in DB: " + tag2Post);
+            });
+            return new ResultAndErrorDto(true, null);
+        }
+        return new ResultAndErrorDto(false, null);
+    }
+
+    private Map<String, String> findNewPostErrors(String title, String text) {
+        Map<String, String> errors = new HashMap<>();
+        if (title.isBlank() || title.length() < 3){
+            errors.put("title", "Заголовок не установлен");
+        }
+        if (text.isBlank() || text.length() < 50){
+            errors.put("text", "Текст публикации слишком короткий");
+        }
+        return errors;
     }
 }
