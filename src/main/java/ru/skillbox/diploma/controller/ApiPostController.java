@@ -84,7 +84,7 @@ public class ApiPostController {
     @GetMapping("/{id}")
     public ResponseEntity<OnePostDto> getPostByID(@PathVariable int id){
         logger.trace("/api/post/" + id);
-        return new ResponseEntity<>(new OnePostDto(postService.findById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(new OnePostDto(postService.findByIdAndIncrementView(id)), HttpStatus.OK);
     }
 
     @PostMapping("/like")
@@ -92,7 +92,6 @@ public class ApiPostController {
     public ResponseEntity<ResultDto> like(@RequestBody Map<String, Integer> request){
         logger.trace("/api/post/like");
         int id = request.get("post_id");
-        logger.info(String.valueOf(id));
         User curUser = authService.getCurUser();
         boolean result = false;
         if(curUser != null){
@@ -108,7 +107,6 @@ public class ApiPostController {
     public ResponseEntity<ResultDto> dislike(@RequestBody Map<String, Integer> request){
         logger.trace("/api/post/dislike");
         int id = request.get("post_id");
-        logger.info(String.valueOf(id));
         User curUser = authService.getCurUser();
         boolean result = false;
         if(curUser != null){

@@ -66,8 +66,12 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    @Transactional
     public Post findById(int id){
+        return postRepository.findById(id);
+    }
+
+    @Transactional
+    public Post findByIdAndIncrementView(int id) {
         int newViewCount = postRepository.findById(id).getViewCount() + 1;
         logger.trace("update Post p set p.viewCount = " + newViewCount + " where p.id = " + id);
         postRepository.updateViewCount(id, newViewCount);
@@ -347,9 +351,17 @@ public class PostService {
     }
 
     public boolean vote(byte value, User curUser, Post curPost) {
-        if (voteRepository.findByUserAndPost(curUser, curPost) == null){
+        Vote voteFromDB = voteRepository.findByUserAndPost(curUser, curPost);
+        if (voteFromDB == null){
             voteRepository.save(new Vote(curUser, curPost, value));
             return true;
+        }
+        else{
+            if (voteFromDB.getValue() != value){
+                voteFromDB.setValue(value);
+                voteRepository.save(voteFromDB);
+                return true;
+            }
         }
         return false;
     }
@@ -399,4 +411,5 @@ public class PostService {
         }
         return errors;
     }
+
 }
