@@ -84,11 +84,9 @@ public class AuthService {
         printLoggedUsers();
 
         UserDataAuthDto userDataAuthDto = new UserDataAuthDto(actualUser);
-        if (userDataAuthDto.getModerationCount() > 0){
-            LOGGER.trace("postService.countByModerationStatus(PostStatus.NEW)");
-            userDataAuthDto.setModerationCount(postService.countByModerationStatus(PostStatus.NEW));
-        }
-//        curUser = userService.findById(authService.getCurUserId());
+        System.out.println("------------ userDataAuthDto " + userDataAuthDto);
+        userDataAuthDto
+                .setModerationCount(checkModerationCount(userDataAuthDto.getModerationCount()));
 
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(curEmail, curPass)
@@ -113,8 +111,10 @@ public class AuthService {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             String currentUserEmail = authentication.getName();
             LOGGER.info("authentication.getName(): " + currentUserEmail);
-            return new AuthenticationDto(
-                    new UserDataAuthDto(userService.findUserByEmail(currentUserEmail)));
+            UserDataAuthDto userDataAuthDto = new UserDataAuthDto(userService.findUserByEmail(currentUserEmail));
+            userDataAuthDto
+                    .setModerationCount(checkModerationCount(userDataAuthDto.getModerationCount()));
+            return new AuthenticationDto(userDataAuthDto);
         }
 
         String sessId = getSessionId();
@@ -125,6 +125,14 @@ public class AuthService {
             return new AuthenticationDto(new UserDataAuthDto(curUser));
         }
         return new AuthenticationDto(null);
+    }
+
+    private int checkModerationCount(int moderationCount) {
+        if (moderationCount == 1){
+            LOGGER.trace("postService.countByModerationStatus(PostStatus.NEW)");
+            return postService.countByModerationStatus(PostStatus.NEW);
+        }
+        return moderationCount;
     }
 
     public boolean logout(HttpServletRequest request, HttpServletResponse response) {
