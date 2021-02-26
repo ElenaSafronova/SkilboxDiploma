@@ -37,10 +37,20 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
 
     Page<Post> findAllByUser(User user, Pageable pageable);
 
+    Page<Post> findAllByStatus(PostStatus status, Pageable pageable);
+
     @Query("select p from Post p where p.moderator in :ids")
     Page<Post> findByModerator(@Param("ids") Set<User> ids, Pageable pageable);
 
-    Page<Post> findAllByModeratorOrStatus(User user, PostStatus status, Pageable pagingAndSorting);
+    @Query("select p from Post p where p.moderator = ?1 and p.status = ?2")
+    Page<Post> findAllByModeratorAndStatus(User moderator,
+                                           PostStatus status,
+                                           Pageable pageable);
+
+    Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable);
+
+    Page<Post> findAllByModeratorAndIsActiveAndStatus(User moderator, byte isActive,
+                                                      PostStatus status, Pageable pageable);
 
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,

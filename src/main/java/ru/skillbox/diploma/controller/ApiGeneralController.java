@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.*;
@@ -103,6 +104,14 @@ public class ApiGeneralController {
                 loginProfileDto.getPassword()
         );
         return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
+    }
+
+    @PostMapping("api/moderation")
+    @Secured("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<ResultDto> moderation(@RequestBody Map<String, String> request){
+        LOGGER.trace("/api/moderation");
+        ResultDto result = postService.moderate(request);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 //    @ResponseBody

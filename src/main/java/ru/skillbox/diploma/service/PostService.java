@@ -107,6 +107,31 @@ public class PostService {
         return postRepository.findByModerator(moderators, pagingAndSorting);
     }
 
+    private Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable)
+    {
+        return postRepository.findAllByModeratorAndIsActive(moderator, isActive, pageable);
+    }
+
+    private Page<Post> findAllByStatus(PostStatus status,
+                                       Pageable pagingAndSorting) {
+        return postRepository.findAllByStatus(status, pagingAndSorting);
+    }
+
+    private Page<Post> findAllByModeratorAndStatus(User moderator,
+                                                   PostStatus status,
+                                                   Pageable pagingAndSorting) {
+        return postRepository.findAllByModeratorAndStatus(moderator, status, pagingAndSorting);
+    }
+
+    private Page<Post> findAllByModeratorAndIsActiveAndStatus(User moderator,
+                                                              byte isActive,
+                                                              PostStatus status,
+                                                              Pageable pagingAndSorting) {
+        return postRepository.findAllByModeratorAndIsActiveAndStatus(
+                moderator, isActive, status, pagingAndSorting);
+    }
+
+
     public AllPostDto searchPosts(byte isActive,
                                   PostStatus status,
                                   ZonedDateTime time,
@@ -177,75 +202,70 @@ public class PostService {
         logger.trace("Request /api/post/my?offset=" + offset +
                 "&limit="+ limit  + "&status=" + status);
 
+        Page<Post> postPage;
         Pageable pagingAndSorting = definePagingAndSortingType(status, offset, limit);
-
-        Page<Post> postPage = findUserPosts(user, pagingAndSorting);
-
         List<PostDto> postDtoList = new ArrayList<>();
 
         switch (status) {
             case INACTIVE:
                 logger.trace("posts sorted by is_active = 0");
-                postPage.stream()
-                        .filter(post -> post.getIsActive() == (byte) 0)
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndIsActive(user, (byte) 0, pagingAndSorting);
                 break;
             case PENDING:
                 logger.trace("posts sorted by is_active = 1, moderation_status = NEW");
-                postPage.stream()
-                        .filter(post -> post.getIsActive() == (byte) 1
-                                && post.getStatus().equals(PostStatus.NEW))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndIsActiveAndStatus(
+                        user, (byte) 1,
+                        PostStatus.NEW,
+                        pagingAndSorting);
                 break;
             case DECLINED:
                 logger.trace("posts sorted by is_active = 1, moderation_status = DECLINED");
-                postPage.stream()
-                        .filter(post -> post.getIsActive() == (byte) 1
-                                && post.getStatus().equals(PostStatus.DECLINED))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndIsActiveAndStatus(
+                        user, (byte) 1,
+                        PostStatus.DECLINED,
+                        pagingAndSorting);
                 break;
             case PUBLISHED:
                 logger.trace("posts sorted by is_active = 1, moderation_status = ACCEPTED");
-                postPage.stream()
-                        .filter(post -> post.getIsActive() == (byte) 1
-                                && post.getStatus().equals(PostStatus.ACCEPTED))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndIsActiveAndStatus(
+                        user, (byte) 1,
+                        PostStatus.ACCEPTED,
+                        pagingAndSorting);
                 break;
+            default:
+                return new AllPostDto(0, postDtoList);
         }
-        return new AllPostDto(postPage.getTotalPages(), postDtoList);
+        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
+        return new AllPostDto((int) postPage.getTotalElements(), postDtoList);
     }
 
     public AllPostDto getModerationPosts(User user, int offset, int limit, String status) {
 
         logger.trace("Request /api/post/moderation?offset=" + offset +
                 "&limit="+ limit  + "&status=" + status);
-
+        Page<Post> postPage;
         Pageable pagingAndSorting = definePagingAndSortingType(status, offset, limit);
-
-        Page<Post> postPage = findModerationPosts(user, pagingAndSorting);
 
         List<PostDto> postDtoList = new ArrayList<>();
 
         switch (status) {
             case NEW:
                 logger.trace("posts новые, необходима модерация");
-                postPage.stream()
-                        .filter(post -> post.getStatus().equals(PostStatus.NEW))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByStatus(PostStatus.NEW, pagingAndSorting);
                 break;
             case DECLINED:
                 logger.trace("posts отклонённые мной");
-                postPage.stream()
-                        .filter(post -> post.getStatus().equals(PostStatus.DECLINED))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndStatus(user, PostStatus.DECLINED, pagingAndSorting);
                 break;
             case ACCEPTED:
                 logger.trace("posts утверждённые мной");
-                postPage.stream()
-                        .filter(post -> post.getStatus().equals(PostStatus.ACCEPTED))
-                        .forEach(post ->  postDtoList.add(new PostDto(post)));
+                postPage = findAllByModeratorAndStatus(user, PostStatus.ACCEPTED, pagingAndSorting);
                 break;
+            default:
+                return new AllPostDto(0, postDtoList);
         }
+        postPage.stream()
+                .forEach(post ->  postDtoList.add(new PostDto(post)));
         return new AllPostDto((int) postPage.getTotalElements(), postDtoList);
     }
 
@@ -412,9 +432,9 @@ public class PostService {
     }
 
 
-    public ResultAndErrorDto addPost(long timestamp, int active,
+    public ResultAndErrorDto addPost(long timestamp, int isActive,
                                      String title, List<String> tags, String text) {
-        logger.trace("addPost method, tags: " + tags);
+        logger.trace("addPost method called");
 //        Многопользовательский режим
 //Если галочка не отмечена, публиковать посты может только модератор. Если отмечена - любой зарегистрированный пользователь
         if(globalSettingsService
@@ -427,16 +447,14 @@ public class PostService {
                 return new ResultAndErrorDto(false, errors);
             }
 
-            Post newPost = new Post((byte) active,
+            Post newPost = new Post((byte) isActive,
                     ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.systemDefault()),
                     title, text, authService.getCurUser());
             postRepository.save(newPost);
             logger.info("new Post in DB: " + newPost);
 
             tags.forEach(tag -> {
-                System.out.println(tag);
                 Tag tagFromDB = tagService.findByName(tag);
-                System.out.println(tagFromDB);
                 Tag2Post tag2Post = new Tag2Post(newPost, tagFromDB);
                 tag2PostService.save(tag2Post);
                 logger.info("new tag2PostService in DB: " + tag2Post);
@@ -444,6 +462,37 @@ public class PostService {
             return new ResultAndErrorDto(true, null);
         }
         return new ResultAndErrorDto(false, null);
+    }
+
+    public ResultAndErrorDto modifyPost(int postId, long timestamp, int isActive,
+                                        String title, List<String> tags, String text) {
+        logger.trace("modifyPost method called");
+        Map<String, String> errors = findNewPostErrors(title, text);
+        if (errors.size() > 0){
+            return new ResultAndErrorDto(false, errors);
+        }
+
+        Post curPost = findById(postId);
+        if (curPost == null){
+            return new ResultAndErrorDto(false, errors);
+        }
+        curPost.setTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.systemDefault()));
+        curPost.setIsActive((byte) isActive);
+        curPost.setTitle(title);
+        curPost.setText(text);
+        postRepository.save(curPost);
+        logger.info("modified Post in DB: " + curPost);
+
+        //TODO:
+        tags.forEach(tag -> {
+            System.out.println(tag);
+            Tag tagFromDB = tagService.findByName(tag);
+            System.out.println(tagFromDB);
+            Tag2Post tag2Post = new Tag2Post(curPost, tagFromDB);
+            tag2PostService.save(tag2Post);
+            logger.info("new tag2PostService in DB: " + tag2Post);
+        });
+        return new ResultAndErrorDto(true, null);
     }
 
     private Map<String, String> findNewPostErrors(String title, String text) {
@@ -457,4 +506,20 @@ public class PostService {
         return errors;
     }
 
+    public ResultDto moderate(Map<String, String> request) {
+        User curUser = authService.getCurUser();
+        int postId = Integer.parseInt(request.get("post_id"));
+        String decision = request.get("decision");
+        if(curUser != null && curUser.getIsModerator() == 1){
+            Post curPost = findById(postId);
+            if (decision.equals("accept")) {
+                curPost.setStatus(PostStatus.ACCEPTED);
+            } else if (decision.equals("decline")) curPost.setStatus(PostStatus.DECLINED);
+            curPost.setModerator(curUser);  // модератор, принявший решение
+            save(curPost);
+            logger.info(decision + " post #" + postId);
+            return new ResultDto(true);
+        }
+        return new ResultDto(false);
+    }
 }

@@ -140,6 +140,21 @@ public class ApiPostController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{id}", method={RequestMethod.POST,RequestMethod.PUT})
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultAndErrorDto> modify(@PathVariable int postId,
+                                                    @RequestBody OnePostDto newPost){
+        logger.trace("/api/post/" + postId);
+        ResultAndErrorDto result = postService.modifyPost(
+                postId,
+                newPost.getTimestamp(),
+                newPost.getActive(),
+                newPost.getTitle(),
+                newPost.getTags(),
+                newPost.getText());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @GetMapping("/moderation")
     @Secured("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<AllPostDto> getMyModerationPosts(
