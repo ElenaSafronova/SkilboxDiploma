@@ -48,6 +48,9 @@ public class PostService {
     @Autowired
     private Tag2PostService tag2PostService;
 
+    @Autowired
+    private PostCommentService postCommentService;
+
     Logger logger = LoggerFactory.getLogger(PostService.class);
 
     ZoneId zoneId = ZoneId.of( "UTC" );
@@ -75,10 +78,28 @@ public class PostService {
 
     @Transactional
     public Post findByIdAndIncrementView(int id) {
-        int newViewCount = postRepository.findById(id).getViewCount() + 1;
-        logger.trace("update Post p set p.viewCount = " + newViewCount + " where p.id = " + id);
-        postRepository.updateViewCount(id, newViewCount);
-        return postRepository.findById(id);
+//        Если модератор авторизован, то не считаем его просмотры вообще
+//        Если автор авторизован, то не считаем просмотры своих же публикаций
+        User curUser = authService.getCurUser();
+        Post curPost = postRepository.findById(id);
+        if (curUser == null){
+            setPostView(curPost, id);
+        }
+        else{
+            if (curUser.getIsModerator() == 1 || curUser == curPost.getUser()){
+                logger.trace("post.viewCount should not be increased");
+            }
+            else{
+                setPostView(curPost, id);
+            }
+        }
+        return curPost;
+    }
+
+    private void setPostView(Post curPost, int postId) {
+        int newViewCount = curPost.getViewCount() + 1;
+        logger.trace("update Post p set p.viewCount = " + newViewCount + " where p.id = " + postId);
+        postRepository.updateViewCount(postId, newViewCount);
     }
 
     public List<Post> findAll(){
@@ -179,7 +200,7 @@ public class PostService {
                 number, numberOfElements, size, totalElements, totalPages);
 
         List<PostDto> postDtoList = new ArrayList<>();
-        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
+        postPage.forEach(post ->  {postDtoList.add(new PostDto(post));});
 
         switch (mode) {
             case POPULAR:
@@ -442,7 +463,7 @@ public class PostService {
                 .getValue()
                 .equals(GlobalSettingValue.YES.name())
         || authService.getCurUser().getIsModerator() == 1){
-            Map<String, String> errors = findNewPostErrors(title, text);
+            Map<String, String> errors = findPostErrors(title, text);
             if (errors.size() > 0){
                 return new ResultAndErrorDto(false, errors);
             }
@@ -467,7 +488,7 @@ public class PostService {
     public ResultAndErrorDto modifyPost(int postId, long timestamp, int isActive,
                                         String title, List<String> tags, String text) {
         logger.trace("modifyPost method called");
-        Map<String, String> errors = findNewPostErrors(title, text);
+        Map<String, String> errors = findPostErrors(title, text);
         if (errors.size() > 0){
             return new ResultAndErrorDto(false, errors);
         }
@@ -483,19 +504,30 @@ public class PostService {
         postRepository.save(curPost);
         logger.info("modified Post in DB: " + curPost);
 
-        //TODO:
-        tags.forEach(tag -> {
-            System.out.println(tag);
-            Tag tagFromDB = tagService.findByName(tag);
-            System.out.println(tagFromDB);
-            Tag2Post tag2Post = new Tag2Post(curPost, tagFromDB);
-            tag2PostService.save(tag2Post);
-            logger.info("new tag2PostService in DB: " + tag2Post);
-        });
+        updatePostTags(curPost, tags);
+
         return new ResultAndErrorDto(true, null);
     }
 
-    private Map<String, String> findNewPostErrors(String title, String text) {
+    private void updatePostTags(Post post, List<String> newTags) {
+        Map<Tag, Integer> oldTags = new HashMap<>();
+        System.out.println("\ntag2Post List for post " + post);
+        post.getTag2Posts().forEach(tag2Post -> {
+            System.out.println(tag2Post.getTag());
+            oldTags.put(tag2Post.getTag(), tag2Post.getId());
+        });
+        System.out.println("\nnew tag List:");
+        newTags.forEach(tag -> {
+            System.out.println(tag);
+            Tag tagFromDB = tagService.findByName(tag);
+            System.out.println(tagFromDB);
+//            Tag2Post tag2Post = new Tag2Post(post, tagFromDB);
+//            tag2PostService.save(tag2Post);
+//            logger.info("new tag2Post in DB: " + tag2Post);
+        });
+    }
+
+    private Map<String, String> findPostErrors(String title, String text) {
         Map<String, String> errors = new HashMap<>();
         if (title.isBlank() || title.length() < 3){
             errors.put("title", "Заголовок не установлен");
@@ -521,5 +553,34 @@ public class PostService {
             return new ResultDto(true);
         }
         return new ResultDto(false);
+    }
+
+    public ResultAndErrorDto comment(Map<String, String> request) {
+        logger.info("CALL comment method");
+        User curUser = authService.getCurUser();
+        int postId = Integer.parseInt(request.get("post_id"));
+        String requestParent = request.get("parent_id");
+        int parentId = requestParent == null ? 0 : Integer.parseInt(requestParent);
+        String text = request.get("text");
+
+        PostComment parentComment = postCommentService.findById(parentId);
+        Post curPost = postRepository.findById(postId);
+        if (parentComment == null && parentId != 0){
+            logger.debug("parentId not exists in DB");
+            return new ResultAndErrorDto(false, null);
+        }
+        if (curPost == null){
+            logger.debug("curPost not exists in DB");
+            return new ResultAndErrorDto(false, null);
+        }
+
+        Map<String, String> errors = new HashMap<>();
+        if (text.isBlank() || text.length() < 3){
+            errors.put("text", "Текст публикации слишком короткий");
+            return new ResultAndErrorDto(false, errors);
+        }
+
+        postCommentService.save(new PostComment(parentComment, curPost, curUser, text));
+        return new ResultAndErrorDto(true, null);
     }
 }

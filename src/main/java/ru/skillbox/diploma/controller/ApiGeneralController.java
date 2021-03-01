@@ -114,6 +114,17 @@ public class ApiGeneralController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PostMapping("api/comment")
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultAndErrorDto> comment(@RequestBody Map<String, String> request){
+        LOGGER.trace("/api/comment");
+        ResultAndErrorDto result = postService.comment(request);
+        if (!result.isResult()){
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 //    @ResponseBody
 //    @GetMapping("/img/userPhoto/{userId}/{photoName}")
 //    public ResponseEntity<InputStreamResource> getUserPhoto(@PathVariable int userId,

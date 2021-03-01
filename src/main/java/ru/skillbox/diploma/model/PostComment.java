@@ -43,4 +43,16 @@ public class PostComment {
     @Column(columnDefinition = "text")
     @NotNull(message = "text cannot be null")
     private String text;
+
+    public PostComment(PostComment parentComment,
+                       @NotNull(message = "postId cannot be null") Post post,
+                       @NotNull(message = "userId cannot be null") User user,
+                       @NotNull(message = "text cannot be null") String text)
+    {
+        this.parentComment = parentComment;
+        this.post = post;
+        this.user = user;
+        this.text = text;
+        this.time = ZonedDateTime.now();
+    }
 }
