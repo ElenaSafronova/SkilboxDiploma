@@ -65,13 +65,20 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
     @Query("select p from Post p " +
         "where p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
         "ORDER BY SIZE(p.votes) DESC")
-    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteValue(
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
             byte isActive,
             PostStatus status,
             ZonedDateTime time,
             byte value,
             Pageable pageable
     );
+
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualAndVotes_Value(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            byte voteValue,
+            Pageable pageable);
 
     Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable);
 
@@ -170,4 +177,5 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                     "    p.view_count as viewCount FROM posts p WHERE p.is_active = 1 AND p.moderation_status = 'ACCEPTED'",
             nativeQuery = true)
     Map<String, String> findAllPosts();
+
 }

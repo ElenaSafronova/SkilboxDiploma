@@ -123,11 +123,19 @@ public class PostService {
                 isActive, status, time, pageable);
     }
 
-    public Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteValue(
+    private Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualAndVotes_Value(
+            byte isActive, PostStatus status, ZonedDateTime time, byte voteValue, Pageable pageable) {
+        logger.trace("CALL method findAllByIsActiveAndStatusAndTimeLessThanEqualAndVotes_ValueContaining");
+        return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqualAndVotes_Value(
+                isActive, status, time, voteValue, pageable);
+    }
+
+
+    public Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
             byte isActive, PostStatus status,
             ZonedDateTime time, byte voteValue, Pageable pageable)
     {
-        return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteValue(
+        return postRepository.findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
                 isActive, status, time, voteValue, pageable);
     }
 
@@ -209,14 +217,16 @@ public class PostService {
                     pagingAndSorting);
         }
         else if(mode.equals(POPULAR)){
+            logger.trace("posts sorted by getPostComments().size()");
             postPage = findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByPostCommentsDesc(
                     (byte) 1,
                     PostStatus.ACCEPTED,
                     ZonedDateTime.now(),
                     pagingAndSorting);
         }
-        else{
-            postPage = findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteValue(
+        else if(mode.equals(BEST)){
+            logger.trace("posts sorted by getVotes().size() where value = 1");
+            postPage = findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
                     (byte) 1,
                     PostStatus.ACCEPTED,
                     ZonedDateTime.now(),
@@ -235,20 +245,14 @@ public class PostService {
                 number, numberOfElements, size, totalElements, totalPages);
 
         List<PostDto> postDtoList = new ArrayList<>();
+
         postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
 
-//        switch (mode) {
-//            case POPULAR:
-//                logger.trace("posts sorted by getPostComments().size()");
-//                postDtoList.stream()
-//                        .sorted(Comparator.comparingInt(PostDto::getCommentCount));
-//                break;
-//            case BEST:
-//                logger.trace("posts sorted by getVotes().size() where value = 1");
-//                postDtoList.stream()
-//                        .sorted(Comparator.comparing(PostDto::getLikeCount));
-//                break;
-//        }
+        if (mode.equals(BEST)){
+            postDtoList.sort(Comparator.comparingInt(PostDto::getLikeCount).reversed());
+            postDtoList.forEach(post -> System.out.println(post.getLikeCount()));
+        }
+
 
         return new AllPostDto(totalElements, postDtoList);
     }
