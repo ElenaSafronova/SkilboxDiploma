@@ -46,6 +46,32 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
     Page<Post> findAllByModeratorAndStatus(User moderator,
                                            PostStatus status,
                                            Pageable pageable);
+    @Query("select p from Post p " +
+            "where p.isActive = ?1 " +
+            "and p.status = ?2 " +
+            "and p.time <= ?3 " +
+            "ORDER BY SIZE(p.postComments) DESC")
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByPostCommentsDesc(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            Pageable pageable
+    );
+
+//        @Query("select p from Post p " +
+//                "join p.votes v where v.value = ?4 " +
+//            "and p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
+//            "ORDER BY SIZE(v) DESC")
+    @Query("select p from Post p " +
+        "where p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
+        "ORDER BY SIZE(p.votes) DESC")
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteValue(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            byte value,
+            Pageable pageable
+    );
 
     Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable);
 
