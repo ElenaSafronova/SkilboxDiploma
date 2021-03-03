@@ -1,5 +1,7 @@
 package ru.skillbox.diploma.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -548,24 +550,6 @@ public class PostService {
         return new ResultAndErrorDto(true, null);
     }
 
-    private void updatePostTags(Post post, List<String> newTags) {
-        Map<Tag, Integer> oldTags = new HashMap<>();
-        System.out.println("\ntag2Post List for post " + post);
-        post.getTag2Posts().forEach(tag2Post -> {
-            System.out.println(tag2Post.getTag());
-            oldTags.put(tag2Post.getTag(), tag2Post.getId());
-        });
-        System.out.println("\nnew tag List:");
-        newTags.forEach(tag -> {
-            System.out.println(tag);
-            Tag tagFromDB = tagService.findByName(tag);
-            System.out.println(tagFromDB);
-//            Tag2Post tag2Post = new Tag2Post(post, tagFromDB);
-//            tag2PostService.save(tag2Post);
-//            logger.info("new tag2Post in DB: " + tag2Post);
-        });
-    }
-
     private Map<String, String> findPostErrors(String title, String text) {
         Map<String, String> errors = new HashMap<>();
         if (title.isBlank() || title.length() < 3){
@@ -622,4 +606,22 @@ public class PostService {
         postCommentService.save(new PostComment(parentComment, curPost, curUser, text));
         return new ResultAndErrorDto(true, null);
     }
+
+    private void updatePostTags(Post post, List<String> newTags) {
+        List<Tag> newTagList = new ArrayList<>();
+        newTags.forEach(tag -> {
+            Tag curTag = tagService.findByName(tag);
+            newTagList.add(curTag);
+        });
+        post.setTags(newTagList);
+        save(post);
+    }
+}
+
+@AllArgsConstructor
+@Data
+class UpdateTag{
+    private Tag tag;
+    private int tag2postRowId;
+    boolean isUsed;
 }

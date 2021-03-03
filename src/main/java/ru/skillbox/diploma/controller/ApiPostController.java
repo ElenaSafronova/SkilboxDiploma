@@ -87,6 +87,21 @@ public class ApiPostController {
         return new ResponseEntity<>(new OnePostDto(postService.findByIdAndIncrementView(id)), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{id}", method={RequestMethod.POST, RequestMethod.PUT})
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultAndErrorDto> modify(@PathVariable int id,
+                                                    @RequestBody OnePostDto newPost){
+        logger.trace("modify method /api/post/" + id);
+        ResultAndErrorDto result = postService.modifyPost(
+                id,
+                newPost.getTimestamp(),
+                newPost.getActive(),
+                newPost.getTitle(),
+                newPost.getTags(),
+                newPost.getText());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @PostMapping("/like")
     @Secured("hasRole('ROLE_USER')")
     public ResponseEntity<ResultDto> like(@RequestBody Map<String, Integer> request){
@@ -132,21 +147,6 @@ public class ApiPostController {
     public ResponseEntity<ResultAndErrorDto> addPost(@RequestBody OnePostDto newPost){
         logger.trace("/api/post");
         ResultAndErrorDto result = postService.addPost(
-                newPost.getTimestamp(),
-                newPost.getActive(),
-                newPost.getTitle(),
-                newPost.getTags(),
-                newPost.getText());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/{id}", method={RequestMethod.POST,RequestMethod.PUT})
-    @Secured("hasRole('ROLE_USER')")
-    public ResponseEntity<ResultAndErrorDto> modify(@PathVariable int postId,
-                                                    @RequestBody OnePostDto newPost){
-        logger.trace("/api/post/" + postId);
-        ResultAndErrorDto result = postService.modifyPost(
-                postId,
                 newPost.getTimestamp(),
                 newPost.getActive(),
                 newPost.getTitle(),
