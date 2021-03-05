@@ -4,6 +4,8 @@ import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skillbox.diploma.dto.ResultAndErrorDto;
 import ru.skillbox.diploma.model.User;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +29,9 @@ import java.util.UUID;
 @Service
 public class GeneralService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralService.class);
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Autowired
     private UserService userService;
@@ -169,14 +176,41 @@ public class GeneralService {
                 Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 
-    public boolean sendEmailToUser(String email) {
+    public boolean sendEmailToUser(String email, String siteUrl) throws MessagingException {
+        if (email.isBlank()){
+            LOGGER.info("email is blank");
+            return false;
+        }
         User userFromDB = userService.findUserByEmail(email);
         if (userFromDB == null){
             LOGGER.info("User with email " + email + " not found");
             return false;
         }
-        String link = "/login/change-password/" + UUID.randomUUID().toString();
 
+        String code = UUID.randomUUID().toString();
+        String link = siteUrl + "/login/change-password/" + code;
+        LOGGER.info("link for " + email + ": " + link);
+        userFromDB.setCode(code);
+        userService.save(userFromDB);
+
+        String text = "<p>Для восстановления доступа к учетной записи на портале" +
+                " DevPub пройдите по ссылке:</p>" +
+                "<p><a href=\"" + link + "\">" + link + "</a></p>" +
+                "<br><p>DevPub</p>";
+        System.out.println(text);
+        System.out.println(userFromDB.getCode());
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+
+        mimeMessageHelper.setFrom("info.coding.rf@gmail.com");
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject("Смена пароля на DevPub");
+        mimeMessageHelper.setText(text, true);
+
+        mailSender.send(mimeMessage);
+
+        LOGGER.info("message was send to " + email);
         return true;
     }
 }

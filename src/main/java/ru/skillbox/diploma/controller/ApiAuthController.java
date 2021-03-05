@@ -9,8 +9,10 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.diploma.dto.*;
 import ru.skillbox.diploma.exception.EmailExistsException;
+import ru.skillbox.diploma.mail.SiteUrl;
 import ru.skillbox.diploma.service.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -94,10 +96,12 @@ public class ApiAuthController {
 
     @PostMapping("/restore")
     public ResponseEntity<ResultDto> restorePassword(
-            @RequestBody HashMap<String ,String> emailResp){
+            HttpServletRequest request,
+            @RequestBody HashMap<String ,String> emailResp) throws MessagingException {
         LOGGER.trace("/api/auth/restore");
         String email = emailResp.get("email");
-        boolean result = generalService.sendEmailToUser(email);
+        String siteUrl = SiteUrl.getSiteURL(request);
+        boolean result = generalService.sendEmailToUser(email, siteUrl);
         return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
     }
 }
