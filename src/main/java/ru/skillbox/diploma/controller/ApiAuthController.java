@@ -19,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -94,7 +95,7 @@ public class ApiAuthController {
         return new ResponseEntity<>(new ResultDto(true), HttpStatus.OK);
     }
 
-    @PostMapping("/restore")
+    @PostMapping(value = {"/restore", "/restore-password"})
     public ResponseEntity<ResultDto> restorePassword(
             HttpServletRequest request,
             @RequestBody HashMap<String ,String> emailResp) throws MessagingException {
@@ -103,6 +104,15 @@ public class ApiAuthController {
         String siteUrl = SiteUrl.getSiteURL(request);
         boolean result = generalService.sendEmailToUser(email, siteUrl);
         return new ResponseEntity<>(new ResultDto(result), HttpStatus.OK);
+    }
+
+    @PostMapping(value = {"/password", "/change-password"})
+    public ResponseEntity<ResultAndErrorDto> changePassword(
+            HttpServletRequest request,
+            @RequestBody HashMap<String ,String> requestBody) throws MessagingException {
+        LOGGER.trace("/api/auth/change-password");
+        ResultAndErrorDto result = generalService.changePassword(requestBody, SiteUrl.getSiteURL(request));
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
 

@@ -37,11 +37,16 @@ public class UserService {
         return userRepository.findByEmailAndPassword(email, password);
     }
 
-    public User findById(int i) {
-        return userRepository.findById(i);
+    public User findById(int id) {
+        return userRepository.findById(id);
+    }
+
+    public User findByCode(String code) {
+        return userRepository.findByCode(code);
     }
 
     public void updateUserName(int id, String name) {
         userRepository.updateName(id, name);
     }
+
 }

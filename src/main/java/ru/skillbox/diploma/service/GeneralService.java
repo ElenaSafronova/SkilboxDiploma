@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skillbox.diploma.dto.ResultAndErrorDto;
+import ru.skillbox.diploma.mail.SiteUrl;
+import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.model.User;
 
 import javax.mail.MessagingException;
@@ -41,6 +43,9 @@ public class GeneralService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CaptchaService captchaService;
 
     public ResultAndErrorDto changeProfile(String name,
                                            String email,
@@ -212,5 +217,47 @@ public class GeneralService {
 
         LOGGER.info("message was send to " + email);
         return true;
+    }
+
+    public ResultAndErrorDto changePassword(HashMap<String, String> request, String siteURL) {
+        String code = request.get("code");
+        String password = request.get("password");
+        String captcha = request.get("captcha");
+        String captchaSecret = request.get("captcha_secret");
+
+        Map<String, String> errors = checkErrors(code, password, captcha,
+                                                    captchaSecret, siteURL);
+        if (errors.size() == 0){
+            User curUser = userService.findByCode(code);
+            curUser.setPassword(passwordEncoder.encode(password));
+            userService.save(curUser);
+            LOGGER.info("password changed for " + curUser.getEmail());
+            return new ResultAndErrorDto(true, null);
+        }
+        return new ResultAndErrorDto(false, errors);
+    }
+
+    private Map<String, String> checkErrors(String code, String password, String captcha,
+                                            String captchaSecret, String siteURL) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        if (userService.findByCode(code) == null){
+            String link = "<a href=\"" + siteURL + "/login/restore-password\">Запросить ссылку снова</a>";
+            errors.put("code", "Ссылка для восстановления пароля устарела. " + link);
+        }
+        if(password.length() < 6){
+            errors.put("password", "Пароль короче 6-ти символов");
+        }
+        Captcha captchaCheck = captchaService.findBySecretCode(captchaSecret);
+        System.out.println("--------------- captcha " + captchaCheck.toString());
+        System.out.println(captcha);
+        if (captchaCheck == null){
+            LOGGER.debug("captcha Код не найден в БД");
+        }
+        if (!captcha.equals(captchaCheck.getCode())){
+            errors.put("captcha", "Код с картинки введён неверно");
+        }
+        return errors;
     }
 }
