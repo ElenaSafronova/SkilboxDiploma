@@ -30,7 +30,7 @@ class UserWithPhotoDto {
     UserWithPhotoDto(User user){
         this.id = user.getId();
         this.name = user.getName();
-        this.photo = user.getPhoto();
+        this.photo = "/img/userPhoto/" + user.getId() + "/" + user.getPhoto();
     }
 
 }
