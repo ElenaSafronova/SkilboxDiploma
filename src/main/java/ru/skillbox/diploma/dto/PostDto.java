@@ -62,6 +62,8 @@ public class PostDto {
     }
 
     public static String noHTMLString(String html) {
-        return html.replaceAll("\\<.*?>","");
+        return html
+                .replaceAll("\\<.*?>","")
+                .replace("&nbsp;", " ");
     }
 }
