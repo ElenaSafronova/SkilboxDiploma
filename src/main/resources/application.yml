@@ -42,6 +42,9 @@ spring:
             enable: true
     protocol: smtp
     test-connection: false
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
   http:
     multipart:
         enabled: true
@@ -56,9 +59,7 @@ spring:
     basic:
       enabled: true
     sessions: stateless
-  thymeleaf:
-    cache: false
-    prefix: file:src/main/resources/templates/
+
 
     server:
       servlet:

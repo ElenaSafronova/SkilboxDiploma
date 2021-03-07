@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class LoginProfileDto{
     private String email;
     private String password;
-    private MultipartFile photo;
     private String name;
     private boolean removePhoto;
 }

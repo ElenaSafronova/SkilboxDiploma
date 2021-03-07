@@ -49,14 +49,15 @@ public class GeneralService {
 
     public ResultAndErrorDto changeProfile(String name,
                                            String email,
-                                           String password)
+                                           String password,
+                                           boolean removePhoto)
     {
-        LOGGER.trace("uploadProfile: " + name + " " + email + " " + password);
+        LOGGER.trace("uploadProfile: " + name + " email " + email + " password " + password + " removePhoto: " + removePhoto);
         Map<String, String> errors = checkErrors(name, email, password, null);
         if (errors.size() > 0){
             return new ResultAndErrorDto(false, errors);
         }
-        changeProfileData(name, email, password, null);
+        changeProfileData(name, email, password, null, removePhoto);
         return new ResultAndErrorDto(true, null);
     }
 
@@ -72,7 +73,7 @@ public class GeneralService {
         if (errors.size() > 0){
             return new ResultAndErrorDto(false, errors);
         }
-        changeProfileData(name, email, password, photo);
+        changeProfileData(name, email, password, photo, false);
         return new ResultAndErrorDto(true, null);
     }
 
@@ -97,7 +98,7 @@ public class GeneralService {
         return errors;
     }
 
-    private void changeProfileData(String name, String email, String password, MultipartFile photo) {
+    private void changeProfileData(String name, String email, String password, MultipartFile photo, boolean removePhoto) {
         boolean isChanged = false;
         User curUser = authService.getCurUser();
         int userId = curUser.getId();
@@ -132,6 +133,10 @@ public class GeneralService {
             }
             uploadPhoto(curUser, photo);
         }
+        if (removePhoto){
+            curUser.setPhoto(null);
+            isChanged = true;
+        }
         if (isChanged) {
             userService.save(curUser);
         }
@@ -165,12 +170,9 @@ public class GeneralService {
 //            String fileExtension = fileName.substring(fileName.indexOf('H'));
 //            ImageIO.write(scaledImg, fileExtension, imgPath);
 //            LOGGER.info("resizeImage " + filePath.toString());
-        }
-        catch (IOException ioex){
+        } catch (Exception ex){
 //            throw new IOException("Could not save image file: " + fileName, ioex);
-            ioex.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            ex.printStackTrace();
         }
         return true;
     }

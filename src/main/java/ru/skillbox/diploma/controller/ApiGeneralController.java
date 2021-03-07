@@ -86,7 +86,8 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/api/profile/my", consumes = "multipart/form-data")
-    public ResponseEntity<ResultAndErrorDto> changePhoto(@ModelAttribute LoginProfileDto loginProfileDto){
+    public ResponseEntity<ResultAndErrorDto> changePhoto(@ModelAttribute LoginProfileWithPhotoDto loginProfileDto){
+        System.out.println(loginProfileDto.getPhoto());
         ResultAndErrorDto resultAndErrorDto = generalService.changeProfileWithPhoto(
                  loginProfileDto.getName(),
                  loginProfileDto.getEmail(),
@@ -101,7 +102,8 @@ public class ApiGeneralController {
         ResultAndErrorDto resultAndErrorDto =  generalService.changeProfile(
                 loginProfileDto.getName(),
                 loginProfileDto.getEmail(),
-                loginProfileDto.getPassword()
+                loginProfileDto.getPassword(),
+                loginProfileDto.isRemovePhoto()
         );
         return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
     }
@@ -124,16 +126,4 @@ public class ApiGeneralController {
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
-//    @ResponseBody
-//    @GetMapping("/img/userPhoto/{userId}/{photoName}")
-//    public ResponseEntity<InputStreamResource> getUserPhoto(@PathVariable int userId,
-//                                                                 @PathVariable String photoName) throws FileNotFoundException {
-//        LOGGER.info("/img/userPhoto");
-//        File file = new File("src/main/resources/static/img/userPhoto/" + userId + "/" + photoName);
-//        return ResponseEntity.ok()
-//                .contentLength(photoName.length())
-//                .contentType(MediaType.parseMediaType("multipart/form-data"))
-//                .body(new InputStreamResource(new FileInputStream(file)));
-//    }
 }
