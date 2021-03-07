@@ -163,6 +163,7 @@ public class GeneralService {
         try(InputStream inputStream = multipartFile.getInputStream()){
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            inputStream.close();
             LOGGER.info("Files.copy " + filePath.toString());
 //            File imgPath = new File(filePath.toString());
 //            BufferedImage img = ImageIO.read(imgPath);

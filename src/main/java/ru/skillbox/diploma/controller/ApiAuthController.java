@@ -82,15 +82,18 @@ public class ApiAuthController {
     }
 
     @GetMapping("/logout")
+    @ResponseBody
     public ResponseEntity<ResultDto> logOut(HttpServletRequest request,
-                                            HttpServletResponse response) throws URISyntaxException {
+                                            HttpServletResponse response) throws IOException {
         LOGGER.trace("/api/auth/logout");
         authService.logout(request, response);
 
 //        URI uri = new URI("/");
 //        HttpHeaders httpHeaders = new HttpHeaders();
+//        String newURL = response.encodeRedirectURL(SiteUrl.getSiteURL(request));
 //        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-//        response.setHeader("Location", "/");
+//        response.setHeader("Location", newURL);
+//        response.sendRedirect(newURL);
 
         return new ResponseEntity<>(new ResultDto(true), HttpStatus.OK);
     }
