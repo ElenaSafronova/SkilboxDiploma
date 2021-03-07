@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.skillbox.diploma.model.Post;
 import ru.skillbox.diploma.model.Tag;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Integer> {
@@ -27,6 +29,61 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
                                                               PostStatus status,
                                                               ZonedDateTime time
     );
+
+    List<Post> findPostListByUserAndIsActiveAndStatusAndTimeLessThanEqual(User user,
+                                                                          byte isActive,
+                                                                          PostStatus accepted,
+                                                                          ZonedDateTime now);
+
+    Page<Post> findAllByUser(User user, Pageable pageable);
+
+    Page<Post> findAllByStatus(PostStatus status, Pageable pageable);
+
+    @Query("select p from Post p where p.moderator in :ids")
+    Page<Post> findByModerator(@Param("ids") Set<User> ids, Pageable pageable);
+
+    @Query("select p from Post p where p.moderator = ?1 and p.status = ?2")
+    Page<Post> findAllByModeratorAndStatus(User moderator,
+                                           PostStatus status,
+                                           Pageable pageable);
+    @Query("select p from Post p " +
+            "where p.isActive = ?1 " +
+            "and p.status = ?2 " +
+            "and p.time <= ?3 " +
+            "ORDER BY SIZE(p.postComments) DESC")
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByPostCommentsDesc(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            Pageable pageable
+    );
+
+//        @Query("select p from Post p " +
+//                "join p.votes v where v.value = ?4 " +
+//            "and p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
+//            "ORDER BY SIZE(v) DESC")
+    @Query("select p from Post p " +
+        "where p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
+        "ORDER BY SIZE(p.votes) DESC")
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            byte value,
+            Pageable pageable
+    );
+
+    Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualAndVotes_Value(
+            byte isActive,
+            PostStatus status,
+            ZonedDateTime time,
+            byte voteValue,
+            Pageable pageable);
+
+    Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable);
+
+    Page<Post> findAllByModeratorAndIsActiveAndStatus(User moderator, byte isActive,
+                                                      PostStatus status, Pageable pageable);
 
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                               PostStatus status,
@@ -60,10 +117,15 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
 
     int countByStatus(PostStatus postStatus);
 
+    int countByStatusAndIsActive(PostStatus postStatus, byte isActive);
+
     int countByIsActiveAndStatusAndTimeLessThanEqual(byte isActive,
                                                      PostStatus status,
                                                      ZonedDateTime time
     );
+
+    int countByUserAndIsActiveAndStatusAndTimeLessThanEqual(User user, byte isActive,
+                                                            PostStatus accepted, ZonedDateTime now);
 
     @Modifying
     @Query("UPDATE Post p SET p.viewCount = ?2 WHERE p.id = ?1")
@@ -116,10 +178,4 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             nativeQuery = true)
     Map<String, String> findAllPosts();
 
-
-
-//    STR_TO_DATE(time, '%Y-%m-%d')
-
-//    @Query("SELECT p FROM posts p WHERE p.text LIKE %?1%")
-//    List<Post> search(String keyword);
 }

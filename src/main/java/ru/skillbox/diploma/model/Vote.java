@@ -20,14 +20,14 @@ public class Vote {
     private int id;
 
     @NotNull(message = "userId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="user_id",
             referencedColumnName="id"
     )
     private User user;
 
     @NotNull(message = "postId cannot be null")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "post_id",
             referencedColumnName="id"
@@ -40,4 +40,18 @@ public class Vote {
 
     @NotNull(message = "value cannot be null")
     private byte value;
+<<<<<<< HEAD
+=======
+
+    public Vote(@NotNull(message = "userId cannot be null") User user,
+                @NotNull(message = "postId cannot be null") Post post,
+                @NotNull(message = "value cannot be null") byte value) {
+        this.user = user;
+        this.post = post;
+        this.value = value;
+        this.time = ZonedDateTime.now();
+    }
+
+
+>>>>>>> dev
 }

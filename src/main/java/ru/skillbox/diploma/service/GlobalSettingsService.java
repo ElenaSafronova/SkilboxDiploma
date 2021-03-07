@@ -22,6 +22,14 @@ public class GlobalSettingsService {
         return (List<GlobalSetting>) globalSettingRepository.findAll();
     }
 
+    public GlobalSetting findByCode(String codeName) {
+        return globalSettingRepository.findByCode(codeName);
+    }
+
+    public GlobalSetting findByName(String name) {
+        return globalSettingRepository.findByName(name);
+    }
+
     public Map<String, Boolean> getSettings() {
         Map<String, Boolean> settings = new HashMap<>();
         Iterator<GlobalSetting> iter = globalSettingRepository.findAll().iterator();
@@ -37,7 +45,17 @@ public class GlobalSettingsService {
         return settings;
     }
 
-    public GlobalSetting findByCode(String codeName) {
-        return globalSettingRepository.findByCode(codeName);
+    public void setSettings(Map<String, Boolean> settings) {
+        settings.forEach((k, v) -> {
+//            System.out.println("Key: " + k + " Value: " + v);
+            GlobalSetting curSetting = findByCode(k);
+            if (v.equals(true)) {
+                curSetting.setValue(GlobalSettingValue.YES.name());
+            } else {
+                curSetting.setValue(GlobalSettingValue.NO.name());
+            }
+            globalSettingRepository.save(curSetting);
+        });
     }
+
 }

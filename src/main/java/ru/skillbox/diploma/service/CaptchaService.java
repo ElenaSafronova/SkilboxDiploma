@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.repository.CaptchaRepository;
-import ru.skillbox.diploma.Dto.CaptchaDto;
+import ru.skillbox.diploma.dto.CaptchaDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,6 +33,10 @@ public class CaptchaService {
 
     public Optional<Captcha> findById(int id){
         return captchaRepository.findById(id);
+    }
+
+    public Captcha findBySecretCode(String captchaSecret) {
+        return captchaRepository.findBySecretCode(captchaSecret);
     }
 
     public List<Captcha> findAll(){

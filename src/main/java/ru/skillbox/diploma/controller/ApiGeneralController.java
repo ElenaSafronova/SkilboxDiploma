@@ -3,22 +3,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import ru.skillbox.diploma.Dto.StatisticsDto;
-import ru.skillbox.diploma.Dto.AllTagsDto;
-import ru.skillbox.diploma.Dto.CalendarDto;
-import ru.skillbox.diploma.service.GlobalSettingsService;
-import ru.skillbox.diploma.service.PostService;
-import ru.skillbox.diploma.service.TagService;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import ru.skillbox.diploma.dto.*;
+import ru.skillbox.diploma.service.*;
 
 import java.util.*;
 
 @RestController
 public class ApiGeneralController {
-    Logger logger = LoggerFactory.getLogger(ApiGeneralController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiGeneralController.class);
 
     @Autowired
     private GlobalSettingsService globalSettingsService;
@@ -29,55 +26,103 @@ public class ApiGeneralController {
     @Autowired
     private PostService postService;
 
-    final String TITLE = "DevPub";
-    final String SUBTITLE = "Рассказы разработчиков";
-    final String PHONE = "+7 903 666-44-55";
-    final String EMAIL = "mail@mail.ru";
-    final String COPYRIGHT = "Дмитрий Сергеев";
-    final String COPYRIGHT_FROM = "2005";
+    @Autowired
+    private InitPropService initPropService;
+
+    @Autowired
+    private GeneralService generalService;
+
 
     @GetMapping(value = "/api/init", produces = "application/json")
     public Map<String, String> getInitData(){
-        logger.trace("Request /api/init");
+        LOGGER.trace("Request /api/init");
 
-        Map<String, String> data = new HashMap<>();
-        data.put("title", TITLE);
-        data.put("subtitle", SUBTITLE);
-        data.put("phone", PHONE);
-        data.put("email", EMAIL);
-        data.put("copyright", COPYRIGHT);
-        data.put("copyrightFrom", COPYRIGHT_FROM);
-
-        return data;
+        return initPropService.getInitProp();
     }
-
 
     @GetMapping("/api/settings")
     public Map<String, Boolean> getGlobalSettings(){
-        logger.trace("Request /api/globalSettings");
+        LOGGER.trace("GetMapping /api/globalSettings");
         return globalSettingsService.getSettings();
+    }
+
+    @RequestMapping(value = "/api/settings", method={RequestMethod.POST,RequestMethod.PUT})
+//    @ResponseBody
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public void setGlobalSettings(@RequestBody Map<String, Boolean> settings){
+        LOGGER.trace("PostMapping /api/globalSettings");
+        globalSettingsService.setSettings(settings);
     }
 
     @GetMapping("/api/tag")
     public AllTagsDto getTags(@RequestParam(required = false) String query) {
-        logger.trace("Request /api/tag");
+        LOGGER.trace("Request /api/tag");
 
         return new AllTagsDto(tagService.findTagsWithWeight(query == null ? "" : query));
     }
 
     @GetMapping("/api/calendar")
     public CalendarDto getPosts4Calendar(@RequestParam(required = false) String years) {
-        logger.trace("Request /api/calendar");
+        LOGGER.trace("Request /api/calendar");
         return postService.findTotalPostsCount4EveryDay(years);
     }
 
     @GetMapping("/api/statistics/all")
     public ResponseEntity<StatisticsDto> getStatisticsAll() {
-        logger.trace("Request /api/statistics/all");
+        LOGGER.trace("Request /api/statistics/all");
         StatisticsDto response = postService.getStatisticsAll();
         if (response == null){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/statistics/my")
+    public ResponseEntity<StatisticsDto> getStatisticsMy() {
+        LOGGER.trace("Request /api/statistics/my");
+        StatisticsDto response = postService.getStatisticsMy();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/api/profile/my", consumes = "multipart/form-data")
+    public ResponseEntity<ResultAndErrorDto> changePhoto(@ModelAttribute LoginProfileWithPhotoDto loginProfileDto){
+        System.out.println(loginProfileDto.getPhoto());
+        ResultAndErrorDto resultAndErrorDto = generalService.changeProfileWithPhoto(
+                 loginProfileDto.getName(),
+                 loginProfileDto.getEmail(),
+                 loginProfileDto.getPassword(),
+                 loginProfileDto.getPhoto()
+         );
+         return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResultAndErrorDto> changeProfile(@RequestBody LoginProfileDto loginProfileDto){
+        ResultAndErrorDto resultAndErrorDto =  generalService.changeProfile(
+                loginProfileDto.getName(),
+                loginProfileDto.getEmail(),
+                loginProfileDto.getPassword(),
+                loginProfileDto.isRemovePhoto()
+        );
+        return new ResponseEntity<>(resultAndErrorDto, HttpStatus.OK);
+    }
+
+    @PostMapping("api/moderation")
+    @Secured("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<ResultDto> moderation(@RequestBody Map<String, String> request){
+        LOGGER.trace("/api/moderation");
+        ResultDto result = postService.moderate(request);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("api/comment")
+    @Secured("hasRole('ROLE_USER')")
+    public ResponseEntity<ResultAndErrorDto> comment(@RequestBody Map<String, String> request){
+        LOGGER.trace("/api/comment");
+        ResultAndErrorDto result = postService.comment(request);
+        if (!result.isResult()){
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

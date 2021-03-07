@@ -1,0 +1,67 @@
+config-properties:
+  propertiesMap:
+    COPYRIGHT: Дмитрий Сергеев
+    COPYRIGHT_FROM: 2005
+    EMAIL: mail@mail.ru
+    PHONE: +7 903 666-44-55
+    SUBTITLE: Рассказы разработчиков
+    TITLE: DevPub
+logging:
+  level:
+    root: INFO
+    ru:
+      skillbox: TRACE
+server:
+  port: 8080
+
+
+spring:
+  datasource:
+    password: testtest
+    url: jdbc:mysql://localhost:3306/weblog?useUnicode=true&serverTimezone=UTC
+    username: root
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    port: 587
+    username: info.coding.rf@gmail.com
+    password: 12345~12345
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    test-connection: false
+  thymeleaf:
+    cache: false
+    prefix: file:src/main/resources/templates/
+  http:
+    multipart:
+        enabled: true
+        file-size-threshold: 200MB
+        max-file-size: 500MB
+        max-request-size: 500MB
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  security:
+    basic:
+      enabled: true
+    sessions: stateless
+
+
+    server:
+      servlet:
+        session:
+          timeout: 15m

@@ -24,6 +24,7 @@ public class UserRepositoryTest{
     @Autowired
     private TestEntityManager entityManager;
 
+    @Test
     public void testCreateUser(){
         User user = new User();
         user.setEmail("blablabla@mail.ru");

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.skillbox.diploma.model.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
-import ru.skillbox.diploma.Dto.TagDto;
+import ru.skillbox.diploma.dto.TagDto;
 import ru.skillbox.diploma.value.PostStatus;
 
 import java.time.ZonedDateTime;
@@ -26,6 +26,14 @@ public class TagService {
 
     public Iterable<Tag> findAll() {
         return tagRepository.findAll();
+    }
+
+    public Tag findByName(String name) {
+        return tagRepository.findByName(name);
+    }
+
+    public void saveNewTag(Tag tag) {
+        tagRepository.save(tag);
     }
 
     public List<TagDto> findTagsWithWeight(String tagQuery) {
@@ -89,4 +97,5 @@ public class TagService {
                 ))
                 .toList().size();
     }
+
 }

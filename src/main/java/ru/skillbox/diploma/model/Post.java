@@ -62,19 +62,52 @@ public class Post {
     @NotNull(message = "viewCount cannot be null")
     private int viewCount;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PostComment> postComments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Vote> votes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     List<Tag2Post> tag2Posts;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable (name = "tag2post",
             joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     private List<Tag> tags = new ArrayList<>();
+
+
+    public Post(@NotNull(message = "isActive cannot be null") byte isActive,
+                @NotNull(message = "post creating time cannot be null") ZonedDateTime time,
+                @NotNull(message = "title cannot be null") String title,
+                @NotNull(message = "text cannot be null") String text,
+                User user)
+    {
+        this.isActive = isActive;
+        this.time = time.isBefore(ZonedDateTime.now()) ? ZonedDateTime.now() : time;
+        this.title = title;
+        this.text = text;
+        this.status = PostStatus.NEW;
+        this.user = user;
+        if (this.user.getIsModerator() == 1){
+            this.setModerator(user);
+            this.setStatus(PostStatus.ACCEPTED);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", isActive=" + isActive +
+                ", status=" + status +
+                ", moderator=" + moderator +
+                ", user=" + user +
+                ", time=" + time +
+                ", title='" + title + '\'' +
+                ", viewCount=" + viewCount +
+                '}';
+    }
 }
 

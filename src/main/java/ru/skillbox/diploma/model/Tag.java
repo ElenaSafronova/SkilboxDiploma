@@ -22,12 +22,23 @@ public class Tag {
     @NotBlank(message = "name cannot be null or whitespace")
     private String name;
 
-    @OneToMany(mappedBy = "tag")
+    @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
     List<Tag2Post> tag2Posts;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable (name = "tag2post",
         joinColumns = @JoinColumn(name = "tag_id"),
         inverseJoinColumns = @JoinColumn(name = "post_id"))
     private Set<Post> posts;
+<<<<<<< HEAD
+=======
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+>>>>>>> dev
 }

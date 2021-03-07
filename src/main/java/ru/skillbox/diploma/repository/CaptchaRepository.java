@@ -16,4 +16,6 @@ public interface CaptchaRepository extends CrudRepository<Captcha, Integer> {
     @Modifying
     @Query("delete from Captcha c where c.time < ?1")
     void deleteBooks(LocalDateTime time);
+
+    Captcha findBySecretCode(String captchaSecret);
 }
