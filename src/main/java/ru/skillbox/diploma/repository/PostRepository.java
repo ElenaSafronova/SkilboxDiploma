@@ -62,9 +62,22 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
 //                "join p.votes v where v.value = ?4 " +
 //            "and p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
 //            "ORDER BY SIZE(v) DESC")
-    @Query("select p from Post p " +
-        "where p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
-        "ORDER BY SIZE(p.votes) DESC")
+//    @Query(value = "select p.id, COALESCE(SUM(v.value),0) as likes " +
+//            "from posts as p " +
+//                "left join post_votes as v on v.post_id = p.id " +
+//            "where p.is_active = '1' and p.moderation_status = 'ACCEPTED' " +
+//            "group by p.id " +
+//            "/*#pageable*/ " +
+//            "order by likes desc",
+//            countQuery = "select count(*) from posts as p " +
+//                    "where p.is_active = '1' and p.moderation_status = 'ACCEPTED'",
+//            nativeQuery = true)
+        @Query("select p " +
+                "from Post p " +
+                "left join p.votes v " +
+            "where p.isActive = ?1 and p.status = ?2 and p.time <= ?3 " +
+            "group by p " +
+            "ORDER BY sum(v.value) DESC")
     Page<Post> findAllByIsActiveAndStatusAndTimeLessThanEqualOrderByVoteCount(
             byte isActive,
             PostStatus status,

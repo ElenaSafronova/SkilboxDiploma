@@ -236,24 +236,17 @@ public class PostService {
                     pagingAndSorting);
         }
 
+        List<PostDto> postDtoList = new ArrayList<>();
+        postPage.forEach(post -> postDtoList.add(new PostDto(post)));
 
+        int totalPages = postPage.getTotalPages();
         int number = postPage.getNumber();
         int numberOfElements = postPage.getNumberOfElements();
         int size = postPage.getSize();
         int totalElements = (int) postPage.getTotalElements();
-        int totalPages = postPage.getTotalPages();
         System.out.printf("page info - page number %s, numberOfElements: %s, size: %s, "
-                        + "totalElements: %s, totalPages: %s%n",
-                number, numberOfElements, size, totalElements, totalPages);
-
-        List<PostDto> postDtoList = new ArrayList<>();
-
-        postPage.forEach(post ->  postDtoList.add(new PostDto(post)));
-
-        if (mode.equals(BEST)){
-            postDtoList.sort(Comparator.comparingInt(PostDto::getLikeCount).reversed());
-            postDtoList.forEach(post -> System.out.println(post.getLikeCount()));
-        }
+                            + "totalElements: %s, totalPages: %s%n",
+                    number, numberOfElements, size, totalElements, totalPages);
 
 
         return new AllPostDto(totalElements, postDtoList);
