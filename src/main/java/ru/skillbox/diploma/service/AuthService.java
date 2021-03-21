@@ -12,11 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
-import ru.skillbox.diploma.dto.*;
-import ru.skillbox.diploma.exception.EmailExistsException;
-import ru.skillbox.diploma.model.Captcha;
-import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.value.PostStatus;
+import ru.skillbox.diploma.model.dto.*;
+import ru.skillbox.diploma.model.exception.EmailExistsException;
+import ru.skillbox.diploma.model.entity.Captcha;
+import ru.skillbox.diploma.model.entity.User;
+import ru.skillbox.diploma.model.value.PostStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

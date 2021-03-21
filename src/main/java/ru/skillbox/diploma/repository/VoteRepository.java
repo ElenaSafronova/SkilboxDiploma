@@ -2,10 +2,9 @@ package ru.skillbox.diploma.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.skillbox.diploma.model.Post;
-import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.model.Vote;
-import ru.skillbox.diploma.value.PostStatus;
+import ru.skillbox.diploma.model.entity.Post;
+import ru.skillbox.diploma.model.entity.User;
+import ru.skillbox.diploma.model.entity.Vote;
 
 @Repository
 public interface VoteRepository extends CrudRepository<Vote, Integer> {

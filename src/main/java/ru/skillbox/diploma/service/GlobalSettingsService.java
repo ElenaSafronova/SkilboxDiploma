@@ -2,9 +2,9 @@ package ru.skillbox.diploma.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.model.GlobalSetting;
+import ru.skillbox.diploma.model.entity.GlobalSetting;
 import ru.skillbox.diploma.repository.GlobalSettingRepository;
-import ru.skillbox.diploma.value.GlobalSettingValue;
+import ru.skillbox.diploma.model.value.GlobalSettingValue;
 
 import java.util.*;
 
