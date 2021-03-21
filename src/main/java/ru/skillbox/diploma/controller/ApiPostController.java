@@ -146,12 +146,7 @@ public class ApiPostController {
     @Secured("hasRole('ROLE_USER')")
     public ResponseEntity<ResultAndErrorDto> addPost(@RequestBody OnePostDto newPost){
         logger.trace("/api/post");
-        ResultAndErrorDto result = postService.addPost(
-                newPost.getTimestamp(),
-                newPost.getActive(),
-                newPost.getTitle(),
-                newPost.getTags(),
-                newPost.getText());
+        ResultAndErrorDto result = postService.addPost(newPost);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

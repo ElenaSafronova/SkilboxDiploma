@@ -164,6 +164,18 @@ public class PostService {
         return postRepository.findAllByStatus(status, pagingAndSorting);
     }
 
+    private Page<Post> findAllByUserAndIsActive(User user, byte active, Pageable pagingAndSorting) {
+        return postRepository.findAllByUserAndIsActive(user, active, pagingAndSorting);
+    }
+
+    private Page<Post> findAllByUserAndIsActiveAndStatus(User user, byte active,
+                                                         PostStatus status, Pageable pagingAndSorting) {
+        return postRepository.findAllByUserAndIsActiveAndStatus(user, active, status, pagingAndSorting);
+    }
+
+
+
+
     private Page<Post> findAllByModeratorAndStatus(User moderator,
                                                    PostStatus status,
                                                    Pageable pagingAndSorting) {
@@ -264,25 +276,25 @@ public class PostService {
         switch (status) {
             case INACTIVE:
                 logger.trace("posts sorted by is_active = 0");
-                postPage = findAllByModeratorAndIsActive(user, (byte) 0, pagingAndSorting);
+                postPage = findAllByUserAndIsActive(user, (byte) 0, pagingAndSorting);
                 break;
             case PENDING:
                 logger.trace("posts sorted by is_active = 1, moderation_status = NEW");
-                postPage = findAllByModeratorAndIsActiveAndStatus(
+                postPage = findAllByUserAndIsActiveAndStatus(
                         user, (byte) 1,
                         PostStatus.NEW,
                         pagingAndSorting);
                 break;
             case DECLINED:
                 logger.trace("posts sorted by is_active = 1, moderation_status = DECLINED");
-                postPage = findAllByModeratorAndIsActiveAndStatus(
+                postPage = findAllByUserAndIsActiveAndStatus(
                         user, (byte) 1,
                         PostStatus.DECLINED,
                         pagingAndSorting);
                 break;
             case PUBLISHED:
                 logger.trace("posts sorted by is_active = 1, moderation_status = ACCEPTED");
-                postPage = findAllByModeratorAndIsActiveAndStatus(
+                postPage = findAllByUserAndIsActiveAndStatus(
                         user, (byte) 1,
                         PostStatus.ACCEPTED,
                         pagingAndSorting);
@@ -487,11 +499,18 @@ public class PostService {
     }
 
 
-    public ResultAndErrorDto addPost(long timestamp, int isActive,
-                                     String title, List<String> tags, String text) {
+    public ResultAndErrorDto addPost(OnePostDto post) {
         logger.trace("addPost method called");
+        long timestamp = post.getTimestamp();
+        int isActive = post.getActive();
+        String title = post.getTitle();
+        List<String> tags = post.getTags();
+        String text = post.getText();
+
 //        Многопользовательский режим
-//Если галочка не отмечена, публиковать посты может только модератор. Если отмечена - любой зарегистрированный пользователь
+//Если галочка не отмечена, публиковать посты может только модератор.
+// Если отмечена - любой зарегистрированный пользователь
+
         if(globalSettingsService
                 .findByCode(GlobalSettingCode.MULTIUSER_MODE.name())
                 .getValue()

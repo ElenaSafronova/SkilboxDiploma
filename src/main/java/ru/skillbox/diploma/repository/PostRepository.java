@@ -89,6 +89,12 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Integer
             byte voteValue,
             Pageable pageable);
 
+    Page<Post> findAllByUserAndIsActive(User user, byte active, Pageable pagingAndSorting);
+
+    Page<Post> findAllByUserAndIsActiveAndStatus(User user, byte active, PostStatus status, Pageable pagingAndSorting);
+
+
+
     Page<Post> findAllByModeratorAndIsActive(User moderator, byte isActive, Pageable pageable);
 
     Page<Post> findAllByModeratorAndIsActiveAndStatus(User moderator, byte isActive,
