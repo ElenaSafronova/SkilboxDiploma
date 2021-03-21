@@ -4,6 +4,7 @@ import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,10 +15,15 @@ import ru.skillbox.diploma.dto.ResultAndErrorDto;
 import ru.skillbox.diploma.mail.SiteUrl;
 import ru.skillbox.diploma.model.Captcha;
 import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.utils.MediaTypeUtils;
 
+import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletContext;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -46,6 +52,9 @@ public class GeneralService {
 
     @Autowired
     private CaptchaService captchaService;
+
+    @Autowired
+    private ServletContext servletContext;
 
     public ResultAndErrorDto changeProfile(String name,
                                            String email,
@@ -163,14 +172,20 @@ public class GeneralService {
         try(InputStream inputStream = multipartFile.getInputStream()){
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-            inputStream.close();
             LOGGER.info("Files.copy " + filePath.toString());
-//            File imgPath = new File(filePath.toString());
-//            BufferedImage img = ImageIO.read(imgPath);
-//            BufferedImage scaledImg  = resizeImage(img, 36, 36);
-//            String fileExtension = fileName.substring(fileName.indexOf('H'));
-//            ImageIO.write(scaledImg, fileExtension, imgPath);
-//            LOGGER.info("resizeImage " + filePath.toString());
+
+            System.out.println("filePath " + filePath);
+            try {
+                BufferedImage originalImage = ImageIO.read(new File(filePath.toString()));
+                BufferedImage imgResized = resizeImage(originalImage, 36, 36);
+                MediaType mediaType = MediaTypeUtils
+                        .getMediaTypeForFileName(this.servletContext, fileName);
+                ImageIO.write(imgResized, mediaType.getSubtype(), new File(filePath.toString()));
+            } catch (Exception e) {
+                LOGGER.warn("Failed to resize " + filePath + " (" + e.getMessage() + ")");
+            }
+
+            LOGGER.info("resizeImage " + filePath.toString());
         } catch (Exception ex){
 //            throw new IOException("Could not save image file: " + fileName, ioex);
             ex.printStackTrace();
@@ -178,10 +193,9 @@ public class GeneralService {
         return true;
     }
 
-    private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth,
-                                      int targetHeight) throws Exception {
-        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC,
-                Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
+
+    BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
+        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 
     public boolean sendEmailToUser(String email, String siteUrl) throws MessagingException {
