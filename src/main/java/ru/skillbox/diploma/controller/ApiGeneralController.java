@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.skillbox.diploma.dto.*;
+import ru.skillbox.diploma.model.dto.*;
 import ru.skillbox.diploma.service.*;
 
 import java.util.*;

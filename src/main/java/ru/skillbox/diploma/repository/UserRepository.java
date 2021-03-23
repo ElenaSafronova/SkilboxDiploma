@@ -3,13 +3,9 @@ package ru.skillbox.diploma.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.value.PostStatus;
-
-import java.time.ZonedDateTime;
+import ru.skillbox.diploma.model.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {

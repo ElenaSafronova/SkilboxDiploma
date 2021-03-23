@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.Rollback;
-import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.model.entity.User;
 import ru.skillbox.diploma.repository.UserRepository;
 
 import java.time.ZonedDateTime;

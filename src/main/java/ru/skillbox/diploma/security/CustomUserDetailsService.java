@@ -3,19 +3,15 @@ package ru.skillbox.diploma.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.model.entity.User;
 import ru.skillbox.diploma.service.UserService;
 
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

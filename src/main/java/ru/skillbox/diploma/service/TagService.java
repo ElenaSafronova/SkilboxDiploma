@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.model.Tag;
+import ru.skillbox.diploma.model.entity.Tag;
 import ru.skillbox.diploma.repository.PostRepository;
 import ru.skillbox.diploma.repository.TagRepository;
-import ru.skillbox.diploma.dto.TagDto;
-import ru.skillbox.diploma.value.PostStatus;
+import ru.skillbox.diploma.model.dto.TagDto;
+import ru.skillbox.diploma.model.value.PostStatus;
 
 import java.time.ZonedDateTime;
 import java.util.*;

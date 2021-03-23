@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.skillbox.diploma.model.Post;
-import ru.skillbox.diploma.model.Tag;
-import ru.skillbox.diploma.model.User;
-import ru.skillbox.diploma.value.PostStatus;
+import ru.skillbox.diploma.model.entity.Post;
+import ru.skillbox.diploma.model.entity.Tag;
+import ru.skillbox.diploma.model.entity.User;
+import ru.skillbox.diploma.model.value.PostStatus;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;

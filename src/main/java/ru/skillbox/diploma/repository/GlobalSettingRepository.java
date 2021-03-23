@@ -2,7 +2,7 @@ package ru.skillbox.diploma.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.skillbox.diploma.model.GlobalSetting;
+import ru.skillbox.diploma.model.entity.GlobalSetting;
 
 @Repository
 public interface GlobalSettingRepository extends CrudRepository<GlobalSetting, Integer> {

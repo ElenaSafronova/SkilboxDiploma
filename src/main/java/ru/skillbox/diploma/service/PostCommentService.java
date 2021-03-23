@@ -2,9 +2,8 @@ package ru.skillbox.diploma.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.skillbox.diploma.model.PostComment;
+import ru.skillbox.diploma.model.entity.PostComment;
 import ru.skillbox.diploma.repository.PostCommentRepository;
-import ru.skillbox.diploma.repository.PostRepository;
 
 @Service
 public class PostCommentService {

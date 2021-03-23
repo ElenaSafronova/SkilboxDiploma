@@ -10,10 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skillbox.diploma.dto.ResultAndErrorDto;
-import ru.skillbox.diploma.mail.SiteUrl;
-import ru.skillbox.diploma.model.Captcha;
-import ru.skillbox.diploma.model.User;
+import ru.skillbox.diploma.model.dto.ResultAndErrorDto;
+import ru.skillbox.diploma.model.entity.Captcha;
+import ru.skillbox.diploma.model.entity.User;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
